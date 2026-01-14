@@ -3,10 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Planif'Chantier Lite - Outil simple de planification de chantier">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <title>Planif'Chantier Lite</title>
-    <!-- Bibliothèque html2pdf.js pour l'export PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-G920T5N6kJ1K07mOupE+0C9dC6Wup2r2N8qN5b3L+N/Tb3ufYlqH4b5b+0Z2cX8t5c7G9xUf+1R+D6P8v3/1L5q7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/android-launchericon-192-192.png" type="image/png">
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" as="script">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-G920T5N6kJ1K07mOupE+0C9dC6Wup2r2N8qN5b3L+N/Tb3ufYlqH4b5b+0Z2cX8t5c7G9xUf+1R+D6P8v3/1L5q7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -36,7 +47,6 @@
 
         th { background: #4CAF50; color: white; }
 
-        /* Largeurs colonnes - Métiers spécialisés */
         #specializedTable th:nth-child(1), #specializedTable td:nth-child(1) { width: 28%; min-width: 130px; }
         #specializedTable th:nth-child(2), #specializedTable td:nth-child(2) { width: 18%; }
         #specializedTable th:nth-child(3), #specializedTable td:nth-child(3) { width: 18%; }
@@ -46,7 +56,6 @@
         #specializedTable th:nth-child(7), #specializedTable td:nth-child(7),
         #specializedTable th:nth-child(8), #specializedTable td:nth-child(8) { width: 9%; }
 
-        /* Largeurs colonnes - Général */
         #generalTable th:nth-child(1), #generalTable td:nth-child(1) { width: 20%; min-width: 100px; }
         #generalTable th:nth-child(2), #generalTable td:nth-child(2),
         #generalTable th:nth-child(3), #generalTable td:nth-child(3),
@@ -55,12 +64,10 @@
         #generalTable th:nth-child(6), #generalTable td:nth-child(6),
         #generalTable th:nth-child(7), #generalTable td:nth-child(7) { width: 13.33%; }
 
-        /* Largeurs colonnes - Remplacement plomb */
         #plombTable th:nth-child(1), #plombTable td:nth-child(1) { width: 20%; }
         #plombTable th:nth-child(2), #plombTable td:nth-child(2) { width: 10%; }
         #plombTable th:nth-child(3), #plombTable td:nth-child(3) { width: 70%; }
 
-        /* Largeurs colonnes - Checklist */
         #checklistTable th:nth-child(1), #checklistTable td:nth-child(1) { width: 40%; }
         #checklistTable th:nth-child(2), #checklistTable td:nth-child(2) { width: 10%; }
         #checklistTable th:nth-child(3), #checklistTable td:nth-child(3) { width: 20%; }
@@ -104,7 +111,6 @@
         .delete-btn { background: #f44336; }
         .delete-btn:hover { background: #d32f2f; }
 
-        /* Bouton Undo jaune */
         #undoBtn {
             background: #FFEB3B;
             color: black;
@@ -114,7 +120,6 @@
             background: #fdd835;
         }
 
-        /* Gomme en bleu */
         #eraserBtn {
             background: #2196F3;
             margin: 10px 5px;
@@ -123,7 +128,6 @@
             background: #1976D2;
         }
 
-        /* Bouton Tout réinitialiser en rouge foncé */
         #resetAllBtn {
             background: #d32f2f;
         }
@@ -131,7 +135,6 @@
             background: #b71c1c;
         }
 
-        /* Bouton Exporter PDF en mauve */
         #exportPdfBtn {
             background: #9C27B0;
             color: white;
@@ -140,7 +143,6 @@
             background: #7B1FA2;
         }
 
-        /* Nouveaux boutons sauvegarde/chargement */
         #saveProjectBtn {
             background: #FF9800;
             color: white;
@@ -507,7 +509,6 @@
         <button id="resetAllBtn">Tout réinitialiser</button>
     </div>
 
-    <!-- Input caché pour charger un fichier -->
     <input type="file" id="loadProjectInput" accept=".json" style="display:none;">
 
     <script>
@@ -632,7 +633,6 @@
         let currentColor = '#000000';
         let isEraser = false;
 
-        // Historique Undo
         let history = [];
         let historyStep = -1;
 
@@ -761,20 +761,20 @@
             }
         };
 
-        // === FONCTION EXPORT PDF ===
         document.getElementById('exportPdfBtn').onclick = () => {
-            const element = document.body;
-            const fileName = `PlanifChantier_\( {streetInput.value.replace(/[^a-z0-9]/gi, '_') || 'Rue'}_ \){projectInput.value.replace(/[^a-z0-9]/gi, '_') || 'Projet'}.pdf`;
+            const street = (streetInput.value.trim() || 'Rue').replace(/[^a-z0-9]/gi, '_');
+            const projet = (projectInput.value.trim() || 'Projet').replace(/[^a-z0-9]/gi, '_');
+            const fileName = `PlanifChantier_\( {street}_ \){projet}.pdf`;
 
             const opt = {
-                margin:       10,
-                filename:     fileName,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: 10,
+                filename: fileName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(document.body).save();
         };
 
         ctx.fillStyle = 'white';
@@ -1204,9 +1204,7 @@
             localStorage.setItem('planifChantierLiteData', JSON.stringify(data));
         }
 
-        // ==================== SAUVEGARDE / CHARGEMENT PROJET ====================
-
-        // Bouton Sauvegarder le projet sur l'appareil
+        // Sauvegarde projet JSON
         document.getElementById('saveProjectBtn').onclick = () => {
             const specializedRows = [];
             specializedBody.querySelectorAll('tr').forEach(row => {
@@ -1295,7 +1293,6 @@
             URL.revokeObjectURL(url);
         };
 
-        // Bouton Charger un projet depuis l'appareil
         const loadProjectInput = document.getElementById('loadProjectInput');
         document.getElementById('loadProjectBtn').onclick = () => {
             loadProjectInput.click();
@@ -1351,43 +1348,7 @@
                             saveState();
                         };
                         img.src = data.drawing;
-                    } else {<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planif'Chantier Lite</title>
-    <!-- Bibliothèque html2pdf.js pour l'export PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-G920T5N6kJ1K07mOupE+0C9dC6Wup2r2N8qN5b3L+N/Tb3ufYlqH4b5b+0Z2cX8t5c7G9xUf+1R+D6P8v3/1L5q7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <link rel="manifest" href="/manifest.json">
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            transition: background-color 0.3s, color 0.3s; 
-        }
-        body.light { background: #f9f9f9; color: black; }
-        body.dark { background: #121212; color: #e0e0e0; }
-
-        h1 { text-align: center; margin-bottom: 30px; }
-        h2 { text-align: center; margin: 40px 0 20px 0; font-size: 1.5em; }
-
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
-            background: white; 
-        }
-        body.dark table { background: #1e1e1e; }
-
-        th, td { 
-            border: 1px solid #ccc; 
-            padding: 10px; 
-            text-align: center; 
-        }
-        body.dark th, body.dark td { border-color: #444; }
-
-
+                    } else {
                         ctx.fillStyle = 'white';
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         history = [];
@@ -1397,7 +1358,7 @@
 
                     updateLabels();
                     calculateTotalLength();
-                    autoSave(); // pour garder aussi dans localStorage
+                    autoSave();
 
                     alert('Projet chargé avec succès !');
                 } catch (err) {
@@ -1497,14 +1458,25 @@
 
         loadData();
     </script>
+
+    <!-- Enregistrement du Service Worker avec anti-cache forcé -->
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registered', reg))
-                    .catch(err => console.log('Service Worker registration failed', err));
+            const swUrl = '/sw.js?v=' + Date.now();
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register(swUrl, { scope: '/' })
+                    .then(function(registration) {
+                        console.log('Service Worker enregistré avec succès. Scope :', registration.scope);
+                        console.log('Version actuelle :', swUrl);
+                    })
+                    .catch(function(error) {
+                        console.error('Échec enregistrement Service Worker :', error);
+                    });
             });
+        } else {
+            console.warn('Service Workers non supportés par ce navigateur.');
         }
     </script>
 </body>
 </html>
+	
