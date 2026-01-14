@@ -11,15 +11,16 @@
 
     <title>Planif'Chantier Lite</title>
 
-    <!-- PWA manifest -->
+    <!-- Manifest PWA -->
     <link rel="manifest" href="/manifest.json">
-    <!-- Icône recommandée (192×192 minimum pour la plupart des launchers) -->
+
+    <!-- Icône principale -->
     <link rel="icon" href="/android-launchericon-192-192.png" type="image/png">
 
-    <!-- Préchargement du script PDF (améliore la réactivité) -->
+    <!-- Préchargement du script PDF (sans integrity pour éviter blocage navigateur) -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" as="script">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-G920T5N6kJ1K07mOupE+0C9dC6Wup2r2N8qN5b3L+N/Tb3ufYlqH4b5b+0Z2cX8t5c7G9xUf+1R+D6P8v3/1L5q7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         body { 
@@ -516,6 +517,7 @@
         <button id="resetAllBtn">Tout réinitialiser</button>
     </div>
 
+    <!-- Input caché pour charger un projet -->
     <input type="file" id="loadProjectInput" accept=".json" style="display:none;">
 
     <script>
@@ -640,6 +642,7 @@
         let currentColor = '#000000';
         let isEraser = false;
 
+        // Historique Undo
         let history = [];
         let historyStep = -1;
 
@@ -768,17 +771,18 @@
             }
         };
 
+        // Export PDF avec nom propre
         document.getElementById('exportPdfBtn').onclick = () => {
-            const street = streetInput.value.trim().replace(/[^a-z0-9]/gi, '_') || 'Rue';
-            const projet = projectInput.value.trim().replace(/[^a-z0-9]/gi, '_') || 'Projet';
+            const street = (streetInput.value.trim() || 'Rue').replace(/[^a-z0-9]/gi, '_');
+            const projet = (projectInput.value.trim() || 'Projet').replace(/[^a-z0-9]/gi, '_');
             const fileName = `PlanifChantier_${street}_${projet}.pdf`;
 
             const opt = {
-                margin:       10,
-                filename:     fileName,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: 10,
+                filename: fileName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(document.body).save();
@@ -1211,6 +1215,7 @@
             localStorage.setItem('planifChantierLiteData', JSON.stringify(data));
         }
 
+        // Sauvegarde projet JSON sur appareil
         document.getElementById('saveProjectBtn').onclick = () => {
             const specializedRows = [];
             specializedBody.querySelectorAll('tr').forEach(row => {
@@ -1299,6 +1304,7 @@
             URL.revokeObjectURL(url);
         };
 
+        // Chargement projet depuis fichier
         const loadProjectInput = document.getElementById('loadProjectInput');
         document.getElementById('loadProjectBtn').onclick = () => {
             loadProjectInput.click();
@@ -1433,12 +1439,13 @@
             if (specializedBody.children.length === 0) addSpecializedRow();
             if (generalToggle.checked && generalBody.children.length === 0) addGeneralRow();
             if (plombToggle.checked && plombBody.children.length === 0) addPlombRow();
-            if (checklistMainToggle.checked && checklistBody.children.length === 0) addChecklistRows();
+            if (checklistMainToggle.checked) addChecklistRows();
 
             updateLabels();
             calculateTotalLength();
         }
 
+        // Événements
         streetInput.oninput = autoSave;
         projectInput.oninput = autoSave;
         generalToggle.onchange = toggleGeneral;
@@ -1465,18 +1472,39 @@
         loadData();
     </script>
 
-    <!-- Enregistrement du Service Worker pour la PWA -->
+    <!-- Enregistrement du Service Worker avec nettoyage des anciens + anti-cache -->
     <script>
         if ('serviceWorker' in navigator) {
+            const timestamp = Date.now();
+            const swUrl = '/sw.js?v=' + timestamp;
+            console.log('[PWA Debug] Tentative enregistrement SW → ' + swUrl);
+
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('Service Worker enregistré avec succès :', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Échec de l\'enregistrement du Service Worker :', error);
+                // Nettoyage des anciens service workers pour éviter conflits
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    console.log('[PWA Debug] Anciens SW trouvés : ' + registrations.length);
+                    registrations.forEach(reg => {
+                        console.log('[PWA Debug] Suppression ancien SW : ' + reg.scope);
+                        reg.unregister();
                     });
+                }).then(() => {
+                    // Enregistrement du nouveau
+                    return navigator.serviceWorker.register(swUrl, { scope: '/' });
+                }).then(registration => {
+                    console.log('[PWA Debug] SUCCÈS enregistrement !');
+                    console.log('[PWA Debug] Scope : ' + registration.scope);
+                    console.log('[PWA Debug] État actif : ' + (registration.active ? 'oui' : 'non'));
+                    if (registration.installing) {
+                        console.log('[PWA Debug] SW en cours d\'installation...');
+                    }
+                }).catch(error => {
+                    console.error('[PWA Debug] ÉCHEC enregistrement SW :');
+                    console.error(error);
+                    console.error('Message : ' + error.message);
+                });
             });
+        } else {
+            console.warn('[PWA Debug] Service Workers non supportés par ce navigateur.');
         }
     </script>
 </body>
