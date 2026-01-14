@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Planif'Chantier Lite - Outil simple de planification de chantier">
+    <meta name="description" content="Planif'Chantier Lite - Outil de planification chantier simplifié">
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -17,7 +17,7 @@
     <!-- Icône principale -->
     <link rel="icon" href="/android-launchericon-192-192.png" type="image/png">
 
-    <!-- Préchargement du script PDF (sans integrity pour éviter blocage navigateur) -->
+    <!-- Préchargement html2pdf -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" as="script">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -517,7 +517,6 @@
         <button id="resetAllBtn">Tout réinitialiser</button>
     </div>
 
-    <!-- Input caché pour charger un projet -->
     <input type="file" id="loadProjectInput" accept=".json" style="display:none;">
 
     <script>
@@ -771,7 +770,6 @@
             }
         };
 
-        // Export PDF avec nom propre
         document.getElementById('exportPdfBtn').onclick = () => {
             const street = (streetInput.value.trim() || 'Rue').replace(/[^a-z0-9]/gi, '_');
             const projet = (projectInput.value.trim() || 'Projet').replace(/[^a-z0-9]/gi, '_');
@@ -1215,7 +1213,6 @@
             localStorage.setItem('planifChantierLiteData', JSON.stringify(data));
         }
 
-        // Sauvegarde projet JSON sur appareil
         document.getElementById('saveProjectBtn').onclick = () => {
             const specializedRows = [];
             specializedBody.querySelectorAll('tr').forEach(row => {
@@ -1304,7 +1301,6 @@
             URL.revokeObjectURL(url);
         };
 
-        // Chargement projet depuis fichier
         const loadProjectInput = document.getElementById('loadProjectInput');
         document.getElementById('loadProjectBtn').onclick = () => {
             loadProjectInput.click();
@@ -1445,7 +1441,6 @@
             calculateTotalLength();
         }
 
-        // Événements
         streetInput.oninput = autoSave;
         projectInput.oninput = autoSave;
         generalToggle.onchange = toggleGeneral;
@@ -1472,39 +1467,18 @@
         loadData();
     </script>
 
-    <!-- Enregistrement du Service Worker avec nettoyage des anciens + anti-cache -->
+    <!-- Enregistrement du Service Worker (copie de ta première app, adapté) -->
     <script>
         if ('serviceWorker' in navigator) {
-            const timestamp = Date.now();
-            const swUrl = '/sw.js?v=' + timestamp;
-            console.log('[PWA Debug] Tentative enregistrement SW → ' + swUrl);
-
             window.addEventListener('load', function() {
-                // Nettoyage des anciens service workers pour éviter conflits
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                    console.log('[PWA Debug] Anciens SW trouvés : ' + registrations.length);
-                    registrations.forEach(reg => {
-                        console.log('[PWA Debug] Suppression ancien SW : ' + reg.scope);
-                        reg.unregister();
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker enregistré avec succès :', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('Échec de l\'enregistrement du Service Worker :', err);
                     });
-                }).then(() => {
-                    // Enregistrement du nouveau
-                    return navigator.serviceWorker.register(swUrl, { scope: '/' });
-                }).then(registration => {
-                    console.log('[PWA Debug] SUCCÈS enregistrement !');
-                    console.log('[PWA Debug] Scope : ' + registration.scope);
-                    console.log('[PWA Debug] État actif : ' + (registration.active ? 'oui' : 'non'));
-                    if (registration.installing) {
-                        console.log('[PWA Debug] SW en cours d\'installation...');
-                    }
-                }).catch(error => {
-                    console.error('[PWA Debug] ÉCHEC enregistrement SW :');
-                    console.error(error);
-                    console.error('Message : ' + error.message);
-                });
             });
-        } else {
-            console.warn('[PWA Debug] Service Workers non supportés par ce navigateur.');
         }
     </script>
 </body>
