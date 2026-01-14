@@ -11,9 +11,12 @@
 
     <title>Planif'Chantier Lite</title>
 
+    <!-- PWA manifest -->
     <link rel="manifest" href="/manifest.json">
+    <!-- Icône recommandée (192×192 minimum pour la plupart des launchers) -->
     <link rel="icon" href="/android-launchericon-192-192.png" type="image/png">
 
+    <!-- Préchargement du script PDF (améliore la réactivité) -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" as="script">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-G920T5N6kJ1K07mOupE+0C9dC6Wup2r2N8qN5b3L+N/Tb3ufYlqH4b5b+0Z2cX8t5c7G9xUf+1R+D6P8v3/1L5q7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -47,6 +50,7 @@
 
         th { background: #4CAF50; color: white; }
 
+        /* Largeurs colonnes - Métiers spécialisés */
         #specializedTable th:nth-child(1), #specializedTable td:nth-child(1) { width: 28%; min-width: 130px; }
         #specializedTable th:nth-child(2), #specializedTable td:nth-child(2) { width: 18%; }
         #specializedTable th:nth-child(3), #specializedTable td:nth-child(3) { width: 18%; }
@@ -56,6 +60,7 @@
         #specializedTable th:nth-child(7), #specializedTable td:nth-child(7),
         #specializedTable th:nth-child(8), #specializedTable td:nth-child(8) { width: 9%; }
 
+        /* Largeurs colonnes - Général */
         #generalTable th:nth-child(1), #generalTable td:nth-child(1) { width: 20%; min-width: 100px; }
         #generalTable th:nth-child(2), #generalTable td:nth-child(2),
         #generalTable th:nth-child(3), #generalTable td:nth-child(3),
@@ -64,10 +69,12 @@
         #generalTable th:nth-child(6), #generalTable td:nth-child(6),
         #generalTable th:nth-child(7), #generalTable td:nth-child(7) { width: 13.33%; }
 
+        /* Largeurs colonnes - Remplacement plomb */
         #plombTable th:nth-child(1), #plombTable td:nth-child(1) { width: 20%; }
         #plombTable th:nth-child(2), #plombTable td:nth-child(2) { width: 10%; }
         #plombTable th:nth-child(3), #plombTable td:nth-child(3) { width: 70%; }
 
+        /* Largeurs colonnes - Checklist */
         #checklistTable th:nth-child(1), #checklistTable td:nth-child(1) { width: 40%; }
         #checklistTable th:nth-child(2), #checklistTable td:nth-child(2) { width: 10%; }
         #checklistTable th:nth-child(3), #checklistTable td:nth-child(3) { width: 20%; }
@@ -762,16 +769,16 @@
         };
 
         document.getElementById('exportPdfBtn').onclick = () => {
-            const street = (streetInput.value.trim() || 'Rue').replace(/[^a-z0-9]/gi, '_');
-            const projet = (projectInput.value.trim() || 'Projet').replace(/[^a-z0-9]/gi, '_');
-            const fileName = `PlanifChantier_\( {street}_ \){projet}.pdf`;
+            const street = streetInput.value.trim().replace(/[^a-z0-9]/gi, '_') || 'Rue';
+            const projet = projectInput.value.trim().replace(/[^a-z0-9]/gi, '_') || 'Projet';
+            const fileName = `PlanifChantier_${street}_${projet}.pdf`;
 
             const opt = {
-                margin: 10,
-                filename: fileName,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin:       10,
+                filename:     fileName,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(document.body).save();
@@ -1204,7 +1211,6 @@
             localStorage.setItem('planifChantierLiteData', JSON.stringify(data));
         }
 
-        // Sauvegarde projet JSON
         document.getElementById('saveProjectBtn').onclick = () => {
             const specializedRows = [];
             specializedBody.querySelectorAll('tr').forEach(row => {
@@ -1427,7 +1433,7 @@
             if (specializedBody.children.length === 0) addSpecializedRow();
             if (generalToggle.checked && generalBody.children.length === 0) addGeneralRow();
             if (plombToggle.checked && plombBody.children.length === 0) addPlombRow();
-            if (checklistMainToggle.checked) addChecklistRows();
+            if (checklistMainToggle.checked && checklistBody.children.length === 0) addChecklistRows();
 
             updateLabels();
             calculateTotalLength();
@@ -1459,24 +1465,19 @@
         loadData();
     </script>
 
-    <!-- Enregistrement du Service Worker avec anti-cache forcé -->
+    <!-- Enregistrement du Service Worker pour la PWA -->
     <script>
         if ('serviceWorker' in navigator) {
-            const swUrl = '/sw.js?v=' + Date.now();
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register(swUrl, { scope: '/' })
-                    .then(function(registration) {
-                        console.log('Service Worker enregistré avec succès. Scope :', registration.scope);
-                        console.log('Version actuelle :', swUrl);
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker enregistré avec succès :', registration.scope);
                     })
-                    .catch(function(error) {
-                        console.error('Échec enregistrement Service Worker :', error);
+                    .catch(error => {
+                        console.log('Échec de l\'enregistrement du Service Worker :', error);
                     });
             });
-        } else {
-            console.warn('Service Workers non supportés par ce navigateur.');
         }
     </script>
 </body>
 </html>
-	
