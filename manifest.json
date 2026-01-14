@@ -1,0 +1,11 @@
+{
+  "background_color": "#474545",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "horn38.github",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "horn38.github",
+  "start_url": "/",
+  "theme_color": "#1e15ec"
+}
