@@ -1,8 +1,9 @@
 // sw.js - Service Worker pour Planif'Chantier Lite
 // Version simple mais robuste : cache les fichiers essentiels + fallback offline
 
-const CACHE_NAME = 'planif-chantier-lite-v6';  // Change le numéro de version quand tu updates (ex: v2)
-const OFFLINE_URL = '/app-suivie/offline.html';  // Optionnel : crée un offline.html si tu veux une page sympa offline
+const CACHE_NAME = 'planif-chantier-lite-v7';  // Change ce numéro quand tu modifies (v6, v7...)
+
+const OFFLINE_URL = '/app-suivie/offline.html';  // Optionnel : crée un offline.html plus tard si tu veux
 
 // Liste des fichiers à mettre en cache dès l'installation
 const FILES_TO_CACHE = [
@@ -46,7 +47,7 @@ self.addEventListener('activate', event => {
 
 // Interception des requêtes (stratégie Cache First, puis Network)
 self.addEventListener('fetch', event => {
-  // Ignorer les requêtes non-GET ou cross-origin (ex: analytics, extensions Chrome)
+  // Ignorer les requêtes non-GET ou cross-origin
   if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
     return;
   }
@@ -54,7 +55,7 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Si trouvé dans le cache → on renvoie ça (rapide + offline)
+        // Si trouvé dans le cache → rapide + offline
         if (response) {
           console.log('[SW] Serve from cache:', event.request.url);
           return response;
@@ -68,7 +69,6 @@ self.addEventListener('fetch', event => {
               return networkResponse;
             }
 
-            // Clone la réponse pour la mettre en cache ET la renvoyer
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME)
               .then(cache => {
@@ -78,11 +78,9 @@ self.addEventListener('fetch', event => {
             return networkResponse;
           })
           .catch(() => {
-            // En cas d'erreur réseau (offline) → fallback vers une page offline si tu en as une
-            // Optionnel : return caches.match(OFFLINE_URL);
+            // Fallback offline basique (message texte pour l'instant)
             console.log('[SW] Offline fallback pour:', event.request.url);
-            // Pour l'instant, on laisse juste passer l'erreur ou renvoyer un message basique
-            return new Response('Vous êtes hors ligne. Certaines fonctionnalités peuvent être limitées.', {
+            return new Response('Vous êtes hors ligne. Certaines fonctionnalités limitées.', {
               status: 503,
               statusText: 'Service Unavailable',
               headers: { 'Content-Type': 'text/plain' }
