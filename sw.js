@@ -16,7 +16,6 @@ const FILES_TO_CACHE = [
   '/app-suivie/android-launchericon-144-144.png',
   '/app-suivie/android-launchericon-192-192.png',
   '/app-suivie/android-launchericon-512-512.png'
-  // Ajoute tes autres fichiers si tu en as (css inline ici, donc pas besoin)
 ];
 
 // Installation du Service Worker : cache les fichiers essentiels
