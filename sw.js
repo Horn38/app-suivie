@@ -1,89 +1,94 @@
-// sw.js - Adapté de ta première app - Version pour Planif'Chantier Lite
-const CACHE_NAME = 'planif-chantier-lite-v1'; // Change le numéro pour forcer mise à jour
-const SCOPE_PATH = '/'; // Racine pour cette app
+// sw.js - Service Worker pour Planif'Chantier Lite
+// Version simple mais robuste : cache les fichiers essentiels + fallback offline
 
-const STATIC_ASSETS = [
-  SCOPE_PATH,
-  SCOPE_PATH + 'index.html',
-  SCOPE_PATH + 'manifest.json',
-  SCOPE_PATH + 'android-launchericon-48-48.png',
-  SCOPE_PATH + 'android-launchericon-72-72.png',
-  SCOPE_PATH + 'android-launchericon-96-96.png',
-  SCOPE_PATH + 'android-launchericon-144-144.png',
-  SCOPE_PATH + 'android-launchericon-192-192.png',
-  SCOPE_PATH + 'android-launchericon-512-512.png',
-  SCOPE_PATH + '180.png',
-  'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+const CACHE_NAME = 'planif-chantier-lite-v1';  // Change le numéro de version quand tu updates (ex: v2)
+const OFFLINE_URL = '/app-suivie/offline.html';  // Optionnel : crée un offline.html si tu veux une page sympa offline
+
+// Liste des fichiers à mettre en cache dès l'installation
+const FILES_TO_CACHE = [
+  '/',                          // racine → redirige vers index.html
+  '/app-suivie/',
+  '/app-suivie/index.html',
+  '/app-suivie/manifest.json',
+  '/app-suivie/android-launchericon-48-48.png',
+  '/app-suivie/android-launchericon-72-72.png',
+  '/app-suivie/android-launchericon-96-96.png',
+  '/app-suivie/android-launchericon-144-144.png',
+  '/app-suivie/android-launchericon-192-192.png',
+  '/app-suivie/android-launchericon-512-512.png',
+  // Ajoute ici tes autres fichiers JS, CSS, images, fonts si tu en as (ex: '/app-suivie/style.css', '/app-suivie/app.js')
 ];
 
-const FALLBACK_HTML = SCOPE_PATH + 'index.html';
-
+// Installation du Service Worker : cache les fichiers essentiels
 self.addEventListener('install', event => {
-  console.log('[SW Planif] Installation en cours...');
+  console.log('[SW] Install');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('[SW Planif] Cache ouvert');
-        return cache.addAll(STATIC_ASSETS);
+        console.log('[SW] Caching app shell');
+        return cache.addAll(FILES_TO_CACHE);
       })
-      .catch(err => console.error('[SW Planif] Erreur cache install:', err))
+      .then(() => self.skipWaiting())  // Force l'activation immédiate
   );
-  self.skipWaiting();
 });
 
+// Activation : nettoie les anciens caches
 self.addEventListener('activate', event => {
-  console.log('[SW Planif] Activation - Nettoyage anciens caches');
+  console.log('[SW] Activate');
   event.waitUntil(
-    caches.keys().then(keys => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            console.log('[SW Planif] Suppression ancien cache:', key);
-            return caches.delete(key);
-          }
-        })
+        cacheNames.filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
       );
     })
+    .then(() => self.clients.claim())  // Prend le contrôle immédiatement
   );
-  self.clients.claim();
 });
 
+// Interception des requêtes (stratégie Cache First, puis Network)
 self.addEventListener('fetch', event => {
-  // Ne gérer que les requêtes de notre scope
-  if (!event.request.url.startsWith(self.location.origin + SCOPE_PATH)) {
+  // Ignorer les requêtes non-GET ou cross-origin (ex: analytics, extensions Chrome)
+  if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
     return;
   }
 
   event.respondWith(
     caches.match(event.request)
-      .then(cachedResponse => {
-        if (cachedResponse) {
-          // Mise à jour en arrière-plan
-          fetch(event.request)
-            .then(networkResponse => {
-              if (networkResponse && networkResponse.status === 200) {
-                caches.open(CACHE_NAME).then(cache => {
-                  cache.put(event.request, networkResponse.clone());
-                });
-              }
-            })
-            .catch(() => console.log('[SW Planif] Offline - utilisation cache'));
-          return cachedResponse;
+      .then(response => {
+        // Si trouvé dans le cache → on renvoie ça (rapide + offline)
+        if (response) {
+          console.log('[SW] Serve from cache:', event.request.url);
+          return response;
         }
 
-        // Pas en cache → réseau
+        // Sinon → fetch réseau
         return fetch(event.request)
           .then(networkResponse => {
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then(cache => {
-                cache.put(event.request, networkResponse.clone());
-              });
+            // Vérifie si réponse valide avant de la cacher
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
             }
+
+            // Clone la réponse pour la mettre en cache ET la renvoyer
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => {
+                cache.put(event.request, responseToCache);
+              });
+
             return networkResponse;
           })
           .catch(() => {
-            console.log('[SW Planif] Offline - Fallback vers index.html');
-            return caches.match(FALLBACK_HTML);
+            // En cas d'erreur réseau (offline) → fallback vers une page offline si tu en as une
+            // Optionnel : return caches.match(OFFLINE_URL);
+            console.log('[SW] Offline fallback pour:', event.request.url);
+            // Pour l'instant, on laisse juste passer l'erreur ou renvoyer un message basique
+            return new Response('Vous êtes hors ligne. Certaines fonctionnalités peuvent être limitées.', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: { 'Content-Type': 'text/plain' }
+            });
           });
       })
   );
