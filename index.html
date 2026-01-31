@@ -8,49 +8,38 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="mobile-web-app-capable" content="yes">
-
     <title>Planif'Chantier Lite</title>
-
-    <!-- Manifest PWA -->
-    <link rel="manifest" href="/app-suivie/manifest.json">
-
+    <!-- Manifest PWA - chemin relatif corrigé -->
+    <link rel="manifest" href="manifest.json">
     <!-- Icône principale -->
     <link rel="icon" href="/android-launchericon-192-192.png" type="image/png">
-
     <!-- Préchargement html2pdf -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" as="script">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            transition: background-color 0.3s, color 0.3s; 
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
         body.light { background: #f9f9f9; color: black; }
         body.dark { background: #121212; color: #e0e0e0; }
-
         h1 { text-align: center; margin-bottom: 30px; }
         h2 { text-align: center; margin: 40px 0 20px 0; font-size: 1.5em; }
-
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
-            background: white; 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
         }
         body.dark table { background: #1e1e1e; }
-
-        th, td { 
-            border: 1px solid #ccc; 
-            padding: 10px; 
-            text-align: center; 
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
         }
         body.dark th, body.dark td { border-color: #444; }
-
         th { background: #4CAF50; color: white; }
-
         /* Largeurs colonnes - Métiers spécialisés */
         #specializedTable th:nth-child(1), #specializedTable td:nth-child(1) { width: 28%; min-width: 130px; }
         #specializedTable th:nth-child(2), #specializedTable td:nth-child(2) { width: 18%; }
@@ -60,7 +49,6 @@
         #specializedTable th:nth-child(6), #specializedTable td:nth-child(6),
         #specializedTable th:nth-child(7), #specializedTable td:nth-child(7),
         #specializedTable th:nth-child(8), #specializedTable td:nth-child(8) { width: 9%; }
-
         /* Largeurs colonnes - Général */
         #generalTable th:nth-child(1), #generalTable td:nth-child(1) { width: 20%; min-width: 100px; }
         #generalTable th:nth-child(2), #generalTable td:nth-child(2),
@@ -69,56 +57,47 @@
         #generalTable th:nth-child(5), #generalTable td:nth-child(5),
         #generalTable th:nth-child(6), #generalTable td:nth-child(6),
         #generalTable th:nth-child(7), #generalTable td:nth-child(7) { width: 13.33%; }
-
         /* Largeurs colonnes - Remplacement plomb */
         #plombTable th:nth-child(1), #plombTable td:nth-child(1) { width: 20%; }
         #plombTable th:nth-child(2), #plombTable td:nth-child(2) { width: 10%; }
         #plombTable th:nth-child(3), #plombTable td:nth-child(3) { width: 70%; }
-
         /* Largeurs colonnes - Checklist */
         #checklistTable th:nth-child(1), #checklistTable td:nth-child(1) { width: 40%; }
         #checklistTable th:nth-child(2), #checklistTable td:nth-child(2) { width: 10%; }
         #checklistTable th:nth-child(3), #checklistTable td:nth-child(3) { width: 20%; }
         #checklistTable th:nth-child(4), #checklistTable td:nth-child(4) { width: 30%; }
-
-        input[type="text"], input[type="date"] { 
-            border: none; 
-            text-align: center; 
-            width: 100%; 
-            background: transparent; 
+        input[type="text"], input[type="date"] {
+            border: none;
+            text-align: center;
+            width: 100%;
+            background: transparent;
             font-size: 16px;
         }
         body.dark input[type="text"], body.dark input[type="date"] { color: #e0e0e0; }
-
         #generalBody input[type="text"], #plombBody input[type="text"], #checklistBody input[type="text"] {
             text-align: left;
             padding: 10px;
         }
-
-        .checkbox-cell { 
-            cursor: pointer; 
-            font-size: 28px; 
-            user-select: none; 
+        .checkbox-cell {
+            cursor: pointer;
+            font-size: 28px;
+            user-select: none;
         }
-
-        button { 
-            padding: 10px 15px; 
-            margin: 5px; 
-            background: #4CAF50; 
-            color: white; 
-            border: none; 
-            cursor: pointer; 
-            border-radius: 5px; 
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
             font-size: 16px;
         }
         button:hover { background: #45a049; }
-
         .add-btn { background: #2196F3; }
         .add-btn:hover { background: #1976D2; }
-
         .delete-btn { background: #f44336; }
         .delete-btn:hover { background: #d32f2f; }
-
         #undoBtn {
             background: #FFEB3B;
             color: black;
@@ -127,7 +106,6 @@
         #undoBtn:hover {
             background: #fdd835;
         }
-
         #eraserBtn {
             background: #2196F3;
             margin: 10px 5px;
@@ -135,14 +113,12 @@
         #eraserBtn:hover {
             background: #1976D2;
         }
-
         #resetAllBtn {
             background: #d32f2f;
         }
         #resetAllBtn:hover {
             background: #b71c1c;
         }
-
         #exportPdfBtn {
             background: #9C27B0;
             color: white;
@@ -150,7 +126,6 @@
         #exportPdfBtn:hover {
             background: #7B1FA2;
         }
-
         #saveProjectBtn {
             background: #FF9800;
             color: white;
@@ -165,18 +140,15 @@
         #loadProjectBtn:hover {
             background: #00796b;
         }
-
-        #langSwitch, #themeSwitch { 
-            padding: 10px; 
-            font-size: 16px; 
-            min-width: 50px; 
+        #langSwitch, #themeSwitch {
+            padding: 10px;
+            font-size: 16px;
+            min-width: 50px;
         }
-
         .controls {
             text-align: center;
             margin-bottom: 20px;
         }
-
         .project-info {
             display: flex;
             justify-content: space-between;
@@ -204,7 +176,6 @@
             color: #e0e0e0;
             border-color: #555;
         }
-
         .table-buttons {
             display: flex;
             justify-content: center;
@@ -212,7 +183,6 @@
             flex-wrap: wrap;
             margin-top: 20px;
         }
-
         .top-sliders {
             display: flex;
             justify-content: center;
@@ -223,26 +193,22 @@
             font-size: 1.2em;
             font-weight: bold;
         }
-
         .slider-group {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-
         .switch {
             position: relative;
             display: inline-block;
             width: 80px;
             height: 40px;
         }
-
-        .switch input { 
+        .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-
         .slider {
             position: absolute;
             cursor: pointer;
@@ -254,7 +220,6 @@
             transition: .4s;
             border-radius: 40px;
         }
-
         .slider:before {
             position: absolute;
             content: "";
@@ -266,17 +231,13 @@
             transition: .4s;
             border-radius: 50%;
         }
-
         input:checked + .slider {
             background-color: #4CAF50;
         }
-
         input:checked + .slider:before {
             transform: translateX(40px);
         }
-
         .hidden { display: none; }
-
         .total-length {
             text-align: left;
             margin: 15px 0;
@@ -297,7 +258,6 @@
             border-color: #555;
             color: #e0e0e0;
         }
-
         #drawingSection {
             margin-top: 50px;
             text-align: center;
@@ -311,7 +271,6 @@
             height: auto;
         }
         body.dark #canvas { border-color: #666; }
-
         .color-picker {
             display: inline-block;
             margin: 10px 5px;
@@ -331,12 +290,10 @@
         }
         body.dark .color-btn { border-color: #666; }
         body.dark .color-btn.selected { border-color: #fff; }
-
         .checklist-toggle-section {
             text-align: center;
             margin: 30px 0 10px 0;
         }
-
         .bottom-buttons {
             display: flex;
             justify-content: center;
@@ -348,12 +305,11 @@
 </head>
 <body class="light">
     <h1>Planif'Chantier</h1>
-    
+   
     <div class="controls">
         <button id="langSwitch">EN</button>
         <button id="themeSwitch">🌙</button>
     </div>
-
     <div class="top-sliders">
         <div class="slider-group">
             <span id="generalLabel">Général</span>
@@ -362,7 +318,6 @@
                 <span class="slider"></span>
             </label>
         </div>
-
         <div class="slider-group">
             <span id="plombLabel">Remplacement plomb</span>
             <label class="switch">
@@ -370,7 +325,6 @@
                 <span class="slider"></span>
             </label>
         </div>
-
         <div class="slider-group">
             <span id="checklistMainLabel">Checklist</span>
             <label class="switch">
@@ -378,7 +332,6 @@
                 <span class="slider"></span>
             </label>
         </div>
-
         <div class="slider-group">
             <span id="drawingLabel">Croquis</span>
             <label class="switch">
@@ -387,7 +340,6 @@
             </label>
         </div>
     </div>
-
     <div class="project-info">
         <div class="project-field">
             <label id="streetLabel">Rue</label>
@@ -398,7 +350,6 @@
             <input type="text" id="projectInput">
         </div>
     </div>
-
     <h2 id="specializedTitle">Métiers spécialisés</h2>
     <table id="specializedTable">
         <thead>
@@ -415,17 +366,14 @@
         </thead>
         <tbody id="specializedBody"></tbody>
     </table>
-
     <div class="total-length">
         <span id="totalLengthLabel">Total longueur (m.) :</span>
         <input type="text" id="totalLengthDisplay" readonly value="0">
     </div>
-
     <div class="table-buttons">
         <button id="addSpecializedBtn" class="add-btn">Ajouter une ligne</button>
         <button id="deleteSpecializedBtn" class="delete-btn">Effacer dernière ligne</button>
     </div>
-
     <div id="generalSection" class="hidden">
         <h2 id="generalTitle">Général</h2>
         <table id="generalTable">
@@ -442,13 +390,11 @@
             </thead>
             <tbody id="generalBody"></tbody>
         </table>
-
         <div class="table-buttons">
             <button id="addGeneralBtn" class="add-btn">Ajouter une ligne</button>
             <button id="deleteGeneralBtn" class="delete-btn">Effacer dernière ligne</button>
         </div>
     </div>
-
     <div id="plombSection" class="hidden">
         <h2 id="plombTitle">Remplacement plomb</h2>
         <table id="plombTable">
@@ -461,13 +407,11 @@
             </thead>
             <tbody id="plombBody"></tbody>
         </table>
-
         <div class="table-buttons">
             <button id="addPlombBtn" class="add-btn">Ajouter une ligne</button>
             <button id="deletePlombBtn" class="delete-btn">Effacer dernière ligne</button>
         </div>
     </div>
-
     <div id="checklistMainSection" class="hidden">
         <div class="checklist-toggle-section">
             <span>Afficher la checklist</span>
@@ -476,7 +420,6 @@
                 <span class="slider"></span>
             </label>
         </div>
-
         <div id="checklistDisplaySection">
             <h2 id="checklistTitle">Checklist</h2>
             <table id="checklistTable">
@@ -492,7 +435,6 @@
             </table>
         </div>
     </div>
-
     <div id="drawingSection" class="hidden">
         <h2 id="drawingTitle">Croquis / Notes à main levée</h2>
         <canvas id="canvas" width="800" height="400"></canvas>
@@ -509,16 +451,13 @@
             <button id="clearCanvas">Effacer tout</button>
         </div>
     </div>
-
     <div class="bottom-buttons">
         <button id="saveProjectBtn">💾 Sauvegarder le projet</button>
         <button id="loadProjectBtn">📂 Charger un projet</button>
         <button id="exportPdfBtn">Exporter en PDF</button>
         <button id="resetAllBtn">Tout réinitialiser</button>
     </div>
-
     <input type="file" id="loadProjectInput" accept=".json" style="display:none;">
-
     <script>
         const labels = {
             fr: {
@@ -612,10 +551,8 @@
                 exportPdf: "Export to PDF"
             }
         };
-
         let currentLang = 'fr';
         let isDark = false;
-
         const body = document.body;
         const specializedBody = document.getElementById('specializedBody');
         const generalBody = document.getElementById('generalBody');
@@ -640,11 +577,9 @@
         let drawing = false;
         let currentColor = '#000000';
         let isEraser = false;
-
         // Historique Undo
         let history = [];
         let historyStep = -1;
-
         function saveState() {
             if (historyStep < history.length - 1) {
                 history = history.slice(0, historyStep + 1);
@@ -656,7 +591,6 @@
                 historyStep--;
             }
         }
-
         function undoLastStroke() {
             if (historyStep > 0) {
                 historyStep--;
@@ -669,7 +603,6 @@
                 autoSave();
             }
         }
-
         const checklistSteps = [
             "marche de rue preliminaire",
             "localisation",
@@ -690,7 +623,6 @@
             "asphalte pavage",
             "ramassage final"
         ];
-
         function resizeCanvas() {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const width = Math.min(window.innerWidth - 40, 800);
@@ -700,12 +632,10 @@
             ctx.putImageData(imageData, 0, 0);
         }
         window.addEventListener('resize', resizeCanvas);
-
         function startDrawing(e) {
             drawing = true;
             draw(e);
         }
-
         function stopDrawing() {
             if (drawing) {
                 saveState();
@@ -714,34 +644,27 @@
             ctx.beginPath();
             autoSave();
         }
-
         function draw(e) {
             if (!drawing) return;
             e.preventDefault();
-
             const rect = canvas.getBoundingClientRect();
             const x = (e.clientX || e.touches[0].clientX) - rect.left;
             const y = (e.clientY || e.touches[0].clientY) - rect.top;
-
             ctx.lineWidth = isEraser ? 12 : 3;
             ctx.lineCap = 'round';
             ctx.strokeStyle = isEraser ? 'white' : currentColor;
-
             ctx.lineTo(x, y);
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(x, y);
         }
-
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mouseup', stopDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseout', stopDrawing);
-
         canvas.addEventListener('touchstart', startDrawing);
         canvas.addEventListener('touchend', stopDrawing);
         canvas.addEventListener('touchmove', draw);
-
         document.querySelectorAll('.color-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
@@ -750,15 +673,12 @@
                 isEraser = false;
             });
         });
-
         document.getElementById('eraserBtn').onclick = () => {
             isEraser = true;
             currentColor = 'white';
             document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
         };
-
         document.getElementById('undoBtn').onclick = undoLastStroke;
-
         document.getElementById('clearCanvas').onclick = () => {
             if (confirm(labels[currentLang].confirmClearCanvas)) {
                 ctx.fillStyle = 'white';
@@ -769,12 +689,10 @@
                 autoSave();
             }
         };
-
         document.getElementById('exportPdfBtn').onclick = () => {
             const street = (streetInput.value.trim() || 'Rue').replace(/[^a-z0-9]/gi, '_');
             const projet = (projectInput.value.trim() || 'Projet').replace(/[^a-z0-9]/gi, '_');
             const fileName = `PlanifChantier_${street}_${projet}.pdf`;
-
             const opt = {
                 margin: 10,
                 filename: fileName,
@@ -782,16 +700,13 @@
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-
             html2pdf().set(opt).from(document.body).save();
         };
-
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         resizeCanvas();
         document.querySelector('.color-btn[data-color="#000000"]').classList.add('selected');
         saveState();
-
         function toggleTheme() {
             isDark = !isDark;
             body.classList.toggle('light', !isDark);
@@ -799,7 +714,6 @@
             themeSwitch.textContent = isDark ? '☀️' : '🌙';
             autoSave();
         }
-
         function updateLabels() {
             document.querySelector('h1').textContent = labels[currentLang].title;
             document.getElementById('streetLabel').textContent = labels[currentLang].street;
@@ -818,7 +732,6 @@
             document.getElementById('totalLengthLabel').textContent = labels[currentLang].totalLengthLabel;
             document.getElementById('resetAllBtn').textContent = labels[currentLang].resetAllBtn;
             document.getElementById('exportPdfBtn').textContent = labels[currentLang].exportPdf;
-
             const specThs = document.querySelectorAll('#specializedTable th');
             specThs[0].textContent = labels[currentLang].section;
             specThs[1].textContent = labels[currentLang].length;
@@ -828,7 +741,6 @@
             specThs[5].textContent = labels[currentLang].lined;
             specThs[6].textContent = labels[currentLang].pressure;
             specThs[7].textContent = labels[currentLang].drilled;
-
             const genThs = document.querySelectorAll('#generalTable th');
             genThs[0].textContent = labels[currentLang].well;
             genThs[1].textContent = labels[currentLang].asphaltCut;
@@ -837,12 +749,10 @@
             genThs[4].textContent = labels[currentLang].connect;
             genThs[5].textContent = labels[currentLang].cementBackfill;
             genThs[6].textContent = labels[currentLang].backfill;
-
             const plombThs = document.querySelectorAll('#plombTable th');
             plombThs[0].textContent = labels[currentLang].address;
             plombThs[1].textContent = labels[currentLang].done;
             plombThs[2].textContent = labels[currentLang].notes;
-
             document.getElementById('addSpecializedBtn').textContent = labels[currentLang].add;
             document.getElementById('deleteSpecializedBtn').textContent = labels[currentLang].deleteLast;
             document.getElementById('addGeneralBtn').textContent = labels[currentLang].add;
@@ -851,7 +761,6 @@
             document.getElementById('deletePlombBtn').textContent = labels[currentLang].deleteLast;
             document.getElementById('langSwitch').textContent = labels[currentLang].langBtn;
         }
-
         function calculateTotalLength() {
             let total = 0;
             specializedBody.querySelectorAll('tr').forEach(row => {
@@ -861,7 +770,6 @@
             });
             totalLengthDisplay.value = total.toFixed(2);
         }
-
         function addSpecializedRow(data = {}) {
             const row = document.createElement('tr');
             ['section', 'length', 'size'].forEach(key => {
@@ -884,7 +792,6 @@
             calculateTotalLength();
             autoSave();
         }
-
         function addGeneralRow(data = {}) {
             const row = document.createElement('tr');
             const cell1 = document.createElement('td');
@@ -894,7 +801,6 @@
             input.oninput = autoSave;
             cell1.appendChild(input);
             row.appendChild(cell1);
-
             ['asphaltCut', 'excavation', 'cut', 'connect', 'cementBackfill', 'backfill'].forEach(key => {
                 const cell = document.createElement('td');
                 cell.className = 'checkbox-cell';
@@ -905,10 +811,8 @@
             generalBody.appendChild(row);
             autoSave();
         }
-
         function addPlombRow(data = {}) {
             const row = document.createElement('tr');
-
             const addrCell = document.createElement('td');
             const addrInput = document.createElement('input');
             addrInput.type = 'text';
@@ -916,13 +820,11 @@
             addrInput.oninput = autoSave;
             addrCell.appendChild(addrInput);
             row.appendChild(addrCell);
-
             const doneCell = document.createElement('td');
             doneCell.className = 'checkbox-cell';
             doneCell.innerHTML = data.done ? '✅' : '⬜';
             doneCell.onclick = () => { doneCell.innerHTML = doneCell.innerHTML === '⬜' ? '✅' : '⬜'; autoSave(); };
             row.appendChild(doneCell);
-
             const notesCell = document.createElement('td');
             const notesInput = document.createElement('input');
             notesInput.type = 'text';
@@ -930,27 +832,22 @@
             notesInput.oninput = autoSave;
             notesCell.appendChild(notesInput);
             row.appendChild(notesCell);
-
             plombBody.appendChild(row);
             autoSave();
         }
-
         function addChecklistRows(data = []) {
             checklistBody.innerHTML = '';
             checklistSteps.forEach((step, index) => {
                 const rowData = data[index] || { done: false, date: '', notes: '' };
                 const row = document.createElement('tr');
-
                 const stepCell = document.createElement('td');
                 stepCell.textContent = step;
                 row.appendChild(stepCell);
-
                 const doneCell = document.createElement('td');
                 doneCell.className = 'checkbox-cell';
                 doneCell.innerHTML = rowData.done ? '✅' : '⬜';
                 doneCell.onclick = () => { doneCell.innerHTML = doneCell.innerHTML === '⬜' ? '✅' : '⬜'; autoSave(); };
                 row.appendChild(doneCell);
-
                 const dateCell = document.createElement('td');
                 const dateInput = document.createElement('input');
                 dateInput.type = 'date';
@@ -958,7 +855,6 @@
                 dateInput.onchange = autoSave;
                 dateCell.appendChild(dateInput);
                 row.appendChild(dateCell);
-
                 const notesCell = document.createElement('td');
                 const notesInput = document.createElement('input');
                 notesInput.type = 'text';
@@ -966,11 +862,9 @@
                 notesInput.oninput = autoSave;
                 notesCell.appendChild(notesInput);
                 row.appendChild(notesCell);
-
                 checklistBody.appendChild(row);
             });
         }
-
         function isRowModified(row) {
             const inputs = row.querySelectorAll('input[type="text"], input[type="date"]');
             const checkboxes = row.querySelectorAll('.checkbox-cell');
@@ -978,25 +872,21 @@
             for (let cb of checkboxes) if (cb.innerHTML === '✅') return true;
             return false;
         }
-
         function hasGeneralData() {
             if (generalBody.children.length === 0) return false;
             for (let row of generalBody.children) if (isRowModified(row)) return true;
             return false;
         }
-
         function hasPlombData() {
             if (plombBody.children.length === 0) return false;
             for (let row of plombBody.children) if (isRowModified(row)) return true;
             return false;
         }
-
         function hasChecklistData() {
             if (checklistBody.children.length === 0) return false;
             for (let row of checklistBody.children) if (isRowModified(row)) return true;
             return false;
         }
-
         function hasDrawing() {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
@@ -1005,7 +895,6 @@
             }
             return false;
         }
-
         function deleteLastSpecialized() {
             const rows = specializedBody.querySelectorAll('tr');
             if (rows.length === 0) return;
@@ -1014,7 +903,6 @@
                 if (confirm(labels[currentLang].confirmDelete)) { last.remove(); autoSave(); calculateTotalLength(); }
             } else { last.remove(); autoSave(); calculateTotalLength(); }
         }
-
         function deleteLastGeneral() {
             const rows = generalBody.querySelectorAll('tr');
             if (rows.length === 0) return;
@@ -1023,7 +911,6 @@
                 if (confirm(labels[currentLang].confirmDelete)) { last.remove(); autoSave(); }
             } else { last.remove(); autoSave(); }
         }
-
         function deleteLastPlomb() {
             const rows = plombBody.querySelectorAll('tr');
             if (rows.length === 0) return;
@@ -1032,7 +919,6 @@
                 if (confirm(labels[currentLang].confirmDelete)) { last.remove(); autoSave(); }
             } else { last.remove(); autoSave(); }
         }
-
         function toggleGeneral() {
             if (generalToggle.checked) {
                 generalSection.classList.remove('hidden');
@@ -1049,7 +935,6 @@
             }
             autoSave();
         }
-
         function togglePlomb() {
             if (plombToggle.checked) {
                 plombSection.classList.remove('hidden');
@@ -1066,7 +951,6 @@
             }
             autoSave();
         }
-
         function toggleChecklistMain() {
             if (checklistMainToggle.checked) {
                 checklistMainSection.classList.remove('hidden');
@@ -1083,7 +967,6 @@
             }
             autoSave();
         }
-
         function toggleChecklistDisplay() {
             if (checklistDisplayToggle.checked) {
                 checklistDisplaySection.classList.remove('hidden');
@@ -1091,7 +974,6 @@
                 checklistDisplaySection.classList.add('hidden');
             }
         }
-
         function toggleDrawing() {
             if (drawingToggle.checked) {
                 drawingSection.classList.remove('hidden');
@@ -1111,7 +993,6 @@
             }
             autoSave();
         }
-
         function resetAll() {
             if (hasData() || hasDrawing() || hasChecklistData()) {
                 if (!confirm(labels[currentLang].confirmResetAll)) {
@@ -1121,7 +1002,6 @@
             localStorage.removeItem('planifChantierLiteData');
             location.reload();
         }
-
         function hasData() {
             if (streetInput.value.trim() !== '' || projectInput.value.trim() !== '') return true;
             if (specializedBody.children.length > 0) {
@@ -1135,7 +1015,6 @@
             }
             return false;
         }
-
         function autoSave() {
             const specializedRows = [];
             specializedBody.querySelectorAll('tr').forEach(row => {
@@ -1152,7 +1031,6 @@
                     drilled: cbs[4].innerHTML === '✅'
                 });
             });
-
             const generalRows = [];
             generalBody.querySelectorAll('tr').forEach(row => {
                 const input = row.querySelector('input[type="text"]');
@@ -1167,7 +1045,6 @@
                     backfill: cbs[5].innerHTML === '✅'
                 });
             });
-
             const plombRows = [];
             plombBody.querySelectorAll('tr').forEach(row => {
                 const inputs = row.querySelectorAll('input[type="text"]');
@@ -1178,7 +1055,6 @@
                     notes: inputs[1].value
                 });
             });
-
             const checklistRows = [];
             checklistBody.querySelectorAll('tr').forEach(row => {
                 const cb = row.querySelector('.checkbox-cell');
@@ -1190,9 +1066,7 @@
                     notes: notesInput.value
                 });
             });
-
             const drawing = canvas.toDataURL('image/png');
-
             const data = {
                 street: streetInput.value,
                 project: projectInput.value,
@@ -1209,10 +1083,8 @@
                 plombRows: plombRows,
                 checklistRows: checklistRows
             };
-
             localStorage.setItem('planifChantierLiteData', JSON.stringify(data));
         }
-
         document.getElementById('saveProjectBtn').onclick = () => {
             const specializedRows = [];
             specializedBody.querySelectorAll('tr').forEach(row => {
@@ -1229,7 +1101,6 @@
                     drilled: cbs[4].innerHTML === '✅'
                 });
             });
-
             const generalRows = [];
             generalBody.querySelectorAll('tr').forEach(row => {
                 const input = row.querySelector('input[type="text"]');
@@ -1244,7 +1115,6 @@
                     backfill: cbs[5].innerHTML === '✅'
                 });
             });
-
             const plombRows = [];
             plombBody.querySelectorAll('tr').forEach(row => {
                 const inputs = row.querySelectorAll('input[type="text"]');
@@ -1255,7 +1125,6 @@
                     notes: inputs[1].value
                 });
             });
-
             const checklistRows = [];
             checklistBody.querySelectorAll('tr').forEach(row => {
                 const cb = row.querySelector('.checkbox-cell');
@@ -1267,9 +1136,7 @@
                     notes: notesInput.value
                 });
             });
-
             const drawing = canvas.toDataURL('image/png');
-
             const data = {
                 street: streetInput.value,
                 project: projectInput.value,
@@ -1286,10 +1153,8 @@
                 plombRows: plombRows,
                 checklistRows: checklistRows
             };
-
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-
             const a = document.createElement('a');
             a.href = url;
             let filename = 'PlanifChantier';
@@ -1297,24 +1162,19 @@
             if (projectInput.value.trim()) filename += '_' + projectInput.value.trim().replace(/[^a-z0-9]/gi, '_');
             a.download = filename + '.json';
             a.click();
-
             URL.revokeObjectURL(url);
         };
-
         const loadProjectInput = document.getElementById('loadProjectInput');
         document.getElementById('loadProjectBtn').onclick = () => {
             loadProjectInput.click();
         };
-
         loadProjectInput.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (ev) => {
                 try {
                     const data = JSON.parse(ev.target.result);
-
                     streetInput.value = data.street || '';
                     projectInput.value = data.project || '';
                     currentLang = data.lang || 'fr';
@@ -1322,30 +1182,23 @@
                     body.classList.toggle('light', !isDark);
                     body.classList.toggle('dark', isDark);
                     themeSwitch.textContent = isDark ? '☀️' : '🌙';
-
                     generalToggle.checked = data.generalEnabled || false;
                     plombToggle.checked = data.plombEnabled || false;
                     checklistMainToggle.checked = data.checklistMainEnabled || false;
                     checklistDisplayToggle.checked = data.checklistDisplayEnabled !== false;
                     drawingToggle.checked = data.drawingEnabled || false;
-
                     generalSection.classList.toggle('hidden', !generalToggle.checked);
                     plombSection.classList.toggle('hidden', !plombToggle.checked);
                     checklistMainSection.classList.toggle('hidden', !checklistMainToggle.checked);
                     checklistDisplaySection.classList.toggle('hidden', !checklistDisplayToggle.checked);
                     drawingSection.classList.toggle('hidden', !drawingToggle.checked);
-
                     specializedBody.innerHTML = '';
                     (data.specializedRows || []).forEach(row => addSpecializedRow(row));
-
                     generalBody.innerHTML = '';
                     (data.generalRows || []).forEach(row => addGeneralRow(row));
-
                     plombBody.innerHTML = '';
                     (data.plombRows || []).forEach(row => addPlombRow(row));
-
                     addChecklistRows(data.checklistRows || []);
-
                     if (data.drawing && data.drawingEnabled) {
                         const img = new Image();
                         img.onload = () => {
@@ -1363,11 +1216,9 @@
                         historyStep = -1;
                         saveState();
                     }
-
                     updateLabels();
                     calculateTotalLength();
                     autoSave();
-
                     alert('Projet chargé avec succès !');
                 } catch (err) {
                     alert('Erreur lors du chargement du fichier : format invalide ou corrompu.');
@@ -1377,7 +1228,6 @@
             reader.readAsText(file);
             loadProjectInput.value = '';
         };
-
         function loadData() {
             const saved = localStorage.getItem('planifChantierLiteData');
             if (saved) {
@@ -1389,30 +1239,23 @@
                 body.classList.toggle('light', !isDark);
                 body.classList.toggle('dark', isDark);
                 themeSwitch.textContent = isDark ? '☀️' : '🌙';
-
                 generalToggle.checked = data.generalEnabled || false;
                 plombToggle.checked = data.plombEnabled || false;
                 checklistMainToggle.checked = data.checklistMainEnabled || false;
                 checklistDisplayToggle.checked = data.checklistDisplayEnabled !== false;
                 drawingToggle.checked = data.drawingEnabled || false;
-
                 generalSection.classList.toggle('hidden', !generalToggle.checked);
                 plombSection.classList.toggle('hidden', !plombToggle.checked);
                 checklistMainSection.classList.toggle('hidden', !checklistMainToggle.checked);
                 checklistDisplaySection.classList.toggle('hidden', !checklistDisplayToggle.checked);
                 drawingSection.classList.toggle('hidden', !drawingToggle.checked);
-
                 specializedBody.innerHTML = '';
                 (data.specializedRows || []).forEach(row => addSpecializedRow(row));
-
                 generalBody.innerHTML = '';
                 (data.generalRows || []).forEach(row => addGeneralRow(row));
-
                 plombBody.innerHTML = '';
                 (data.plombRows || []).forEach(row => addPlombRow(row));
-
                 addChecklistRows(data.checklistRows || []);
-
                 if (data.drawing) {
                     const img = new Image();
                     img.onload = () => {
@@ -1431,16 +1274,13 @@
                     saveState();
                 }
             }
-
             if (specializedBody.children.length === 0) addSpecializedRow();
             if (generalToggle.checked && generalBody.children.length === 0) addGeneralRow();
             if (plombToggle.checked && plombBody.children.length === 0) addPlombRow();
             if (checklistMainToggle.checked) addChecklistRows();
-
             updateLabels();
             calculateTotalLength();
         }
-
         streetInput.oninput = autoSave;
         projectInput.oninput = autoSave;
         generalToggle.onchange = toggleGeneral;
@@ -1448,13 +1288,11 @@
         checklistMainToggle.onchange = toggleChecklistMain;
         checklistDisplayToggle.onchange = toggleChecklistDisplay;
         drawingToggle.onchange = toggleDrawing;
-
         document.getElementById('langSwitch').onclick = () => {
             currentLang = currentLang === 'fr' ? 'en' : 'fr';
             updateLabels();
             autoSave();
         };
-
         document.getElementById('themeSwitch').onclick = toggleTheme;
         document.getElementById('addSpecializedBtn').onclick = addSpecializedRow;
         document.getElementById('deleteSpecializedBtn').onclick = deleteLastSpecialized;
@@ -1463,20 +1301,18 @@
         document.getElementById('addPlombBtn').onclick = addPlombRow;
         document.getElementById('deletePlombBtn').onclick = deleteLastPlomb;
         document.getElementById('resetAllBtn').onclick = resetAll;
-
         loadData();
     </script>
-
-    <!-- Enregistrement du Service Worker (copie de ta première app, adapté) -->
+    <!-- Enregistrement du Service Worker - chemin relatif + scope explicite -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('sw.js', { scope: '/app-suivie/' })
                     .then(registration => {
-                        console.log('Service Worker enregistré avec succès :', registration.scope);
+                        console.log('Service Worker enregistré avec succès. Scope :', registration.scope);
                     })
                     .catch(err => {
-                        console.log('Échec de l\'enregistrement du Service Worker :', err);
+                        console.error('Échec de l\'enregistrement du Service Worker :', err);
                     });
             });
         }
