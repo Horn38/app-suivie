@@ -1,12 +1,12 @@
 // sw.js - Service Worker pour Planif'Chantier Lite
 // Version simple mais robuste : cache les fichiers essentiels + fallback offline
 
-const CACHE_NAME = 'planif-chantier-lite-v1';  // Change le numéro de version quand tu updates (ex: v2)
+const CACHE_NAME = 'planif-chantier-lite-v2';  // Change le numéro de version quand tu updates (ex: v2)
 const OFFLINE_URL = '/app-suivie/offline.html';  // Optionnel : crée un offline.html si tu veux une page sympa offline
 
 // Liste des fichiers à mettre en cache dès l'installation
 const FILES_TO_CACHE = [
-  '/',                          // racine → redirige vers index.html
+  '/',
   '/app-suivie/',
   '/app-suivie/index.html',
   '/app-suivie/manifest.json',
@@ -15,8 +15,8 @@ const FILES_TO_CACHE = [
   '/app-suivie/android-launchericon-96-96.png',
   '/app-suivie/android-launchericon-144-144.png',
   '/app-suivie/android-launchericon-192-192.png',
-  '/app-suivie/android-launchericon-512-512.png',
-  // Ajoute ici tes autres fichiers JS, CSS, images, fonts si tu en as (ex: '/app-suivie/style.css', '/app-suivie/app.js')
+  '/app-suivie/android-launchericon-512-512.png'
+  // Ajoute tes autres fichiers si tu en as (css inline ici, donc pas besoin)
 ];
 
 // Installation du Service Worker : cache les fichiers essentiels
