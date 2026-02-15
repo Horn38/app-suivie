@@ -13,9 +13,6 @@
     <link rel="manifest" href="manifest.json">
     <!-- Icône principale -->
     <link rel="icon" href="android-launchericon-192-192.png" type="image/png">
-    <!-- Préchargement html2pdf -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" as="script">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,14 +38,13 @@
         body.dark th, body.dark td { border-color: #444; }
         th { background: #4CAF50; color: white; }
         /* Largeurs colonnes - Métiers spécialisés */
-        #specializedTable th:nth-child(1), #specializedTable td:nth-child(1) { width: 28%; min-width: 130px; }
-        #specializedTable th:nth-child(2), #specializedTable td:nth-child(2) { width: 18%; }
-        #specializedTable th:nth-child(3), #specializedTable td:nth-child(3) { width: 18%; }
-        #specializedTable th:nth-child(4), #specializedTable td:nth-child(4),
-        #specializedTable th:nth-child(5), #specializedTable td:nth-child(5),
-        #specializedTable th:nth-child(6), #specializedTable td:nth-child(6),
-        #specializedTable th:nth-child(7), #specializedTable td:nth-child(7),
-        #specializedTable th:nth-child(8), #specializedTable td:nth-child(8) { width: 9%; }
+        #specializedTable td:nth-child(1), #specializedTable td:nth-child(3) { width: 10%; }
+        #specializedTable td:nth-child(2) { width: 20px; padding: 0 !important; }
+        #specializedTable td:nth-child(4), #specializedTable td:nth-child(5) { width: 12%; }
+        #specializedTable td:nth-child(6), #specializedTable td:nth-child(7),
+        #specializedTable td:nth-child(8), #specializedTable td:nth-child(9),
+        #specializedTable td:nth-child(10), #specializedTable td:nth-child(11),
+        #specializedTable td:nth-child(12), #specializedTable td:nth-child(13) { width: auto; }
         /* Largeurs colonnes - Général */
         #generalTable th:nth-child(1), #generalTable td:nth-child(1) { width: 20%; min-width: 100px; }
         #generalTable th:nth-child(2), #generalTable td:nth-child(2),
@@ -83,6 +79,45 @@
             font-size: 28px;
             user-select: none;
         }
+        .section-at { text-align: center; font-weight: bold; font-size: 16px; padding: 0 2px !important; width: 20px; color: #aaa; }
+        .rappel-section { background: #1e1e2e; border: 2px solid #f9e2af; border-radius: 10px; padding: 12px 18px; margin: 12px 0; }
+        body.light .rappel-section { background: #fffbeb; border-color: #f59e0b; }
+        .rappel-section h3 { margin: 0 0 10px 0; font-size: 15px; color: #f9e2af; }
+        body.light .rappel-section h3 { color: #92400e; }
+        .rappel-fields { display: flex; gap: 20px; flex-wrap: wrap; }
+        .rappel-field { flex: 1; min-width: 120px; }
+        .rappel-field label { display: block; font-size: 13px; margin-bottom: 4px; color: #cdd6f4; }
+        body.light .rappel-field label { color: #555; }
+        .rappel-field input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #313244; color: #cdd6f4; font-size: 14px; box-sizing: border-box; }
+        body.light .rappel-field input { background: #fff; border-color: #ccc; color: #333; }
+        /* PDF Plan Module */
+        #pdfPlanSection { margin: 15px 0; }
+        .pdf-plan-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 10px 0; }
+        .pdf-plan-controls button, .pdf-plan-controls label { padding: 10px 15px; font-size: 14px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; }
+        #pdfRotateBtn { background: #795548; color: white; }
+        #pdfRotateBtn:hover { background: #5D4037; }
+        #pdfAddPointBtn { background: #607D8B; color: white; }
+        #pdfAddPointBtn:hover { background: #455A64; }
+        #pdfAddPointBtn.active { background: #e74c3c !important; }
+        .pdf-file-label { background: #FF9800; color: white; display: inline-flex; align-items: center; gap: 4px; }
+        .pdf-file-label:hover { background: #F57C00; }
+        #pdfPlanContainer { position: relative; display: inline-block; margin: 10px auto; border: 2px solid #555; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); max-width: 100%; }
+        #pdfPlanContainer.point-mode, #pdfPlanContainer.delete-mode { touch-action: none; }
+        #pdfPlanContainer canvas { display: block; max-width: 100%; }
+        #pdfOverlay { position: absolute; top: 0; left: 0; pointer-events: none; }
+        #pdfPlanContainer.point-mode #pdfOverlay, #pdfPlanContainer.delete-mode #pdfOverlay { pointer-events: auto; }
+        #pdfDeletePointBtn { background: #9C27B0; color: white; }
+        #pdfDeletePointBtn:hover { background: #7B1FA2; }
+        #pdfDeletePointBtn.active { background: #e74c3c !important; }
+        #drawingModeBtn { background: #607D8B; color: white; font-weight: 600; border: none; border-radius: 8px; padding: 10px 15px; cursor: pointer; }
+        #drawingModeBtn:hover { background: #455A64; }
+        #drawingModeBtn.active { background: #e74c3c !important; }
+        /* Specialized table header colors */
+        #specThCleaned { background: #FF0000 !important; color: white !important; }
+        #specThPlugged { background: #FF6D00 !important; color: white !important; }
+        #specThLined { background: #FFFF00 !important; color: #333 !important; }
+        #specThPressure { background: #FF00FF !important; color: white !important; }
+        #specThDrilled { background: #008000 !important; color: white !important; }
         button {
             padding: 10px 15px;
             margin: 5px;
@@ -360,10 +395,10 @@
             border: 2px solid #ccc;
             border-radius: 8px;
             background: white;
-            touch-action: none;
             max-width: 100%;
             height: auto;
         }
+        #canvas.draw-active { touch-action: none; cursor: crosshair; }
         body.dark #canvas { border-color: #666; }
         .color-picker {
             display: inline-block;
@@ -456,6 +491,12 @@
             padding: 10px 16px; background: #1e1e2e; border-bottom: 1px solid #313244; flex-shrink: 0;
         }
         body.light .photo-folder-toolbar { background: #f0f0f0; border-color: #ccc; }
+        .photo-subfolder-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 25px; }
+        .photo-subfolder-card { background: #2a2a3e; border: 2px solid #444; border-radius: 12px; padding: 25px 10px; text-align: center; font-size: 16px; font-weight: 600; cursor: pointer; color: #cdd6f4; transition: all 0.15s; }
+        .photo-subfolder-card:hover { background: #3a3a5e; border-color: #89b4fa; transform: scale(1.03); }
+        .photo-subfolder-card:active { transform: scale(0.97); }
+        body.light .photo-subfolder-card { background: #fff; border-color: #ddd; color: #333; }
+        body.light .photo-subfolder-card:hover { background: #e8f0fe; border-color: #4CAF50; }
         .photo-import-btn {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 8px 16px; font-size: 14px; font-weight: 600;
@@ -547,6 +588,66 @@
             .photo-lightbox-next { right: 5px; }
             .photo-lightbox-prev, .photo-lightbox-next { width: 40px; height: 40px; font-size: 28px; }
         }
+        /* ===== PRINT / EXPORT PDF ===== */
+        @media print {
+            /* Force light mode */
+            body, body.dark { background: #fff !important; color: #222 !important; }
+            /* Hide ALL UI controls */
+            .toggle-bar, .bottom-buttons, .table-buttons,
+            .add-btn, .delete-btn, #exportPdfBtn,
+            .photo-overlay, #photoFolderOverlay, #photoLightbox,
+            .log-overlay, #logPopupOverlay,
+            .pdf-plan-controls,
+            #drawingModeBtn, #undoBtn, #eraserBtn, #clearCanvas, .color-picker, .color-btn,
+            .checklist-toggle-section,
+            #langSwitch, #themeSwitch,
+            #loadProjectInput, #photoFileInput,
+            h1, .switch { display: none !important; }
+            /* Show active sections, hide disabled ones */
+            #generalSection, #autresSection, #plombSection,
+            #checklistMainSection, #checklistDisplaySection,
+            #drawingSection, #pdfPlanSection { display: block !important; }
+            #generalSection.hidden, #autresSection.hidden, #plombSection.hidden,
+            #checklistMainSection.hidden, #checklistDisplaySection.hidden,
+            #drawingSection.hidden, #pdfPlanSection.hidden { display: none !important; }
+            /* Make inputs look like plain text */
+            input[type="text"], input[type="date"] {
+                border: none !important; background: transparent !important;
+                color: #222 !important; font-size: 12px !important;
+                padding: 2px !important; box-shadow: none !important; outline: none !important;
+            }
+            /* Tables */
+            table { font-size: 11px !important; page-break-inside: auto; }
+            tr { page-break-inside: avoid; }
+            th { background: #4CAF50 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            #specThCleaned { background: #FF0000 !important; }
+            #specThPlugged { background: #FF6D00 !important; }
+            #specThLined { background: #FFFF00 !important; color: #333 !important; }
+            #specThPressure { background: #FF00FF !important; }
+            #specThDrilled { background: #008000 !important; }
+            td, th { padding: 4px 6px !important; }
+            /* Rappel section */
+            .rappel-section { border-color: #f59e0b !important; background: #fffbeb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .rappel-section h3 { color: #92400e !important; }
+            .rappel-field label { color: #555 !important; }
+            .rappel-field input { border-bottom: 1px solid #ccc !important; }
+            /* Project fields */
+            .project-field label { color: #555 !important; }
+            /* Canvas/drawing — just show the image */
+            #canvas { max-width: 100% !important; height: auto !important; border: 1px solid #ccc !important; }
+            /* PDF plan — show image only */
+            #pdfPlanContainer { max-width: 100% !important; overflow: visible !important; display: inline-block !important; }
+            #pdfCanvas, #pdfOverlay { max-width: 100% !important; height: auto !important; }
+            /* Log section (injected for print) */
+            #printLogSection { display: block !important; page-break-before: always; }
+            #printLogSection table { width: 100%; border-collapse: collapse; }
+            #printLogSection th { background: #4CAF50 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 6px; font-size: 11px; border: 1px solid #999; }
+            #printLogSection td { padding: 5px; font-size: 11px; border: 1px solid #ccc; }
+            /* General spacing */
+            h2 { font-size: 16px !important; margin: 15px 0 10px !important; }
+            body { margin: 10px !important; }
+        }
+        #printLogSection { display: none; }
     </style>
 </head>
 <body class="light">
@@ -561,6 +662,13 @@
             <span id="generalLabel">Général</span>
             <label class="switch">
                 <input type="checkbox" id="generalToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="slider-group">
+            <span id="autresLabel">Autres</span>
+            <label class="switch">
+                <input type="checkbox" id="autresToggle">
                 <span class="slider"></span>
             </label>
         </div>
@@ -585,6 +693,13 @@
                 <span class="slider"></span>
             </label>
         </div>
+        <div class="slider-group">
+            <span id="pdfPlanLabel">Plan PDF</span>
+            <label class="switch">
+                <input type="checkbox" id="pdfPlanToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
     </div>
     <div class="project-info">
         <div class="project-field">
@@ -600,18 +715,31 @@
             <input type="text" id="foremanInput">
         </div>
     </div>
+    <div class="rappel-section">
+        <h3 id="rappelTitle">Rappel test plat et éclatement</h3>
+        <div class="rappel-fields">
+            <div class="rappel-field">
+                <label id="rappelReqLabel">Quantité requise</label>
+                <input type="text" id="rappelReqInput">
+            </div>
+            <div class="rappel-field">
+                <label id="rappelDoneLabel">Quantité fait</label>
+                <input type="text" id="rappelDoneInput">
+            </div>
+        </div>
+    </div>
     <h2 id="specializedTitle">Métiers spécialisés</h2>
     <table id="specializedTable">
         <thead>
             <tr>
-                <th>Section</th>
+                <th id="specThSection" colspan="3">Section</th>
                 <th>Longueur</th>
                 <th>Diamètre</th>
-                <th>Laver</th>
-                <th>Bouchonner</th>
-                <th>Gainer</th>
-                <th>Test de pression</th>
-                <th>Driller V3</th>
+                <th id="specThCleaned" colspan="2">Laver</th>
+                <th id="specThPlugged" colspan="2">Bouchonner</th>
+                <th id="specThLined">Gainer</th>
+                <th id="specThPressure">Test de pression</th>
+                <th id="specThDrilled" colspan="2">Driller V3</th>
             </tr>
         </thead>
         <tbody id="specializedBody"></tbody>
@@ -643,6 +771,23 @@
         <div class="table-buttons">
             <button id="addGeneralBtn" class="add-btn">Ajouter une ligne</button>
             <button id="deleteGeneralBtn" class="delete-btn">Effacer dernière ligne</button>
+        </div>
+    </div>
+    <div id="autresSection" class="hidden">
+        <h2 id="autresTitle">Autres</h2>
+        <table id="autresTable">
+            <thead>
+                <tr>
+                    <th id="autresThTask">Tâche</th>
+                    <th id="autresThStart">Début</th>
+                    <th id="autresThDone">Fait</th>
+                </tr>
+            </thead>
+            <tbody id="autresBody"></tbody>
+        </table>
+        <div class="table-buttons">
+            <button id="addAutresBtn" class="add-btn">Ajouter une ligne</button>
+            <button id="deleteAutresBtn" class="delete-btn">Effacer dernière ligne</button>
         </div>
     </div>
     <div id="plombSection" class="hidden">
@@ -685,8 +830,27 @@
             </table>
         </div>
     </div>
+    <div id="pdfPlanSection" class="hidden">
+        <h2 id="pdfPlanTitle">Plan PDF</h2>
+        <div class="pdf-plan-controls">
+            <label class="pdf-file-label" for="pdfFileInput">📄 PDF</label>
+            <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none;">
+            <button id="pdfRotateBtn">Rotation 0°</button>
+            <button id="pdfAddPointBtn">Ajouter des points</button>
+            <button id="pdfDeletePointBtn">Enlever des points</button>
+        </div>
+        <div style="text-align:center;">
+            <div id="pdfPlanContainer" style="display:none;">
+                <canvas id="pdfCanvas"></canvas>
+                <canvas id="pdfOverlay"></canvas>
+            </div>
+        </div>
+    </div>
     <div id="drawingSection" class="hidden">
         <h2 id="drawingTitle">Croquis / Notes à main levée</h2>
+        <div style="text-align:center; margin-bottom:8px;">
+            <button id="drawingModeBtn">✏️ Activer le dessin</button>
+        </div>
         <canvas id="canvas" width="800" height="400"></canvas>
         <div>
             <span class="color-picker">
@@ -745,7 +909,8 @@
                             <th>Tableau</th>
                             <th>Ligne</th>
                             <th>Tâche</th>
-                            <th>Date</th>
+                            <th id="logThDateStart">Date début</th>
+                            <th id="logThDateEnd">Date fin</th>
                             <th>Équipe</th>
                         </tr>
                     </thead>
@@ -769,17 +934,30 @@
                 </div>
                 <button class="photo-folder-close" id="photoFolderCloseBtn" title="Fermer">✕</button>
             </div>
-            <div class="photo-folder-toolbar">
-                <button class="photo-import-btn" id="photoImportBtn">
-                    <span>📷</span> Importer photo(s)
-                </button>
-                <span class="photo-count" id="photoCount">0 photo(s)</span>
+            <!-- Sub-folder selector -->
+            <div id="photoSubFolderView">
+                <div class="photo-subfolder-grid">
+                    <div class="photo-subfolder-card" data-folder="Factures">📄<br>Factures</div>
+                    <div class="photo-subfolder-card" data-folder="FicheCuisson">🔥<br><span id="sfLabelCuisson">Fiche de Cuisson</span></div>
+                    <div class="photo-subfolder-card" data-folder="TestPression">🔧<br><span id="sfLabelPression">Test de Pression</span></div>
+                    <div class="photo-subfolder-card" data-folder="Autres">📎<br><span id="sfLabelAutres">Autres</span></div>
+                </div>
             </div>
-            <div class="photo-folder-grid" id="photoFolderGrid">
-                <div class="photo-empty-state" id="photoEmptyState">
-                    <div class="photo-empty-icon">🖼️</div>
-                    <p>Aucune photo dans ce dossier</p>
-                    <p class="photo-empty-hint">Cliquez sur "Importer photo(s)" pour ajouter des images</p>
+            <!-- Photo grid (hidden initially) -->
+            <div id="photoGridView" class="hidden">
+                <div class="photo-folder-toolbar">
+                    <button class="photo-import-btn" id="photoBackBtn" style="background:#607D8B;">◀ Retour</button>
+                    <button class="photo-import-btn" id="photoImportBtn">
+                        <span>📷</span> Importer photo(s)
+                    </button>
+                    <span class="photo-count" id="photoCount">0 photo(s)</span>
+                </div>
+                <div class="photo-folder-grid" id="photoFolderGrid">
+                    <div class="photo-empty-state" id="photoEmptyState">
+                        <div class="photo-empty-icon">🖼️</div>
+                        <p>Aucune photo dans ce dossier</p>
+                        <p class="photo-empty-hint">Cliquez sur "Importer photo(s)" pour ajouter des images</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -806,15 +984,33 @@
                 street: "Rue",
                 project: "Projet",
                 foreman: "Contremaître",
+                rappelTitle: "Rappel test plat et éclatement",
+                rappelReq: "Quantité requise",
+                rappelDone: "Quantité fait",
                 specializedTitle: "Métiers spécialisés",
                 generalLabel: "Général",
                 generalTitle: "Général",
+                autresLabel: "Autres",
+                autresTitle: "Autres",
+                autresTask: "Tâche",
+                autresStart: "Début",
+                autresDone: "Fait",
                 plombLabel: "Remplacement plomb",
                 plombTitle: "Remplacement plomb",
                 checklistMainLabel: "Checklist",
                 checklistTitle: "Checklist",
                 drawingLabel: "Croquis",
                 drawingTitle: "Croquis / Notes à main levée",
+                drawingMode: "Activer le dessin",
+                drawingModeActive: "Mode dessin ACTIVÉ",
+                pdfPlanLabel: "Plan PDF",
+                pdfPlanTitle: "Plan PDF",
+                pdfLoad: "Charger PDF",
+                pdfRotate: "Rotation",
+                pdfAddPoint: "Ajouter des points",
+                pdfAddPointActive: "Mode ajout ACTIVÉ",
+                pdfDeletePoint: "Enlever des points",
+                pdfDeletePointActive: "Mode suppression ACTIVÉ",
                 eraser: "Gomme",
                 clear: "Effacer tout",
                 totalLengthLabel: "Total longueur (m.) :",
@@ -832,8 +1028,8 @@
                 well: "N. Puit",
                 asphaltCut: "Coupe asphalte",
                 excavation: "Excavation",
-                cut: "Couper",
-                connect: "Raccorder",
+                cut: "Couper (tuyau)",
+                connect: "Raccorder (tuyau)",
                 cementBackfill: "Ciment remblais",
                 backfill: "Remblayer",
                 add: "Ajouter une ligne",
@@ -852,15 +1048,33 @@
                 street: "Street",
                 project: "Project",
                 foreman: "Foreman",
+                rappelTitle: "Flat & burst test reminder",
+                rappelReq: "Quantity required",
+                rappelDone: "Quantity done",
                 specializedTitle: "Specialized Trades",
                 generalLabel: "General",
                 generalTitle: "General",
+                autresLabel: "Other",
+                autresTitle: "Other",
+                autresTask: "Task",
+                autresStart: "Start",
+                autresDone: "Done",
                 plombLabel: "Lead Replacement",
                 plombTitle: "Lead Replacement",
                 checklistMainLabel: "Checklist",
                 checklistTitle: "Checklist",
                 drawingLabel: "Sketch",
                 drawingTitle: "Sketch / Handwritten notes",
+                drawingMode: "Enable drawing",
+                drawingModeActive: "Drawing mode ON",
+                pdfPlanLabel: "PDF Plan",
+                pdfPlanTitle: "PDF Plan",
+                pdfLoad: "Load PDF",
+                pdfRotate: "Rotation",
+                pdfAddPoint: "Add points",
+                pdfAddPointActive: "Add mode ON",
+                pdfDeletePoint: "Remove points",
+                pdfDeletePointActive: "Remove mode ON",
                 eraser: "Eraser",
                 clear: "Clear all",
                 totalLengthLabel: "Total length (m.):",
@@ -878,8 +1092,8 @@
                 well: "Pit n.",
                 asphaltCut: "Asphalt Cut",
                 excavation: "Excavation",
-                cut: "Cut",
-                connect: "Connect",
+                cut: "Cut (pipe)",
+                connect: "Connect (pipe)",
                 cementBackfill: "Cement Backfill",
                 backfill: "Backfill",
                 add: "Add Row",
@@ -912,10 +1126,17 @@
         const checklistMainToggle = document.getElementById('checklistMainToggle');
         const checklistDisplayToggle = document.getElementById('checklistDisplayToggle');
         const drawingToggle = document.getElementById('drawingToggle');
+        const pdfPlanSection = document.getElementById('pdfPlanSection');
+        const pdfPlanToggle = document.getElementById('pdfPlanToggle');
+        const autresSection = document.getElementById('autresSection');
+        const autresToggle = document.getElementById('autresToggle');
+        const autresBody = document.getElementById('autresBody');
         const themeSwitch = document.getElementById('themeSwitch');
         const streetInput = document.getElementById('streetInput');
         const projectInput = document.getElementById('projectInput');
         const foremanInput = document.getElementById('foremanInput');
+        const rappelReqInput = document.getElementById('rappelReqInput');
+        const rappelDoneInput = document.getElementById('rappelDoneInput');
         const totalLengthDisplay = document.getElementById('totalLengthDisplay');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -977,7 +1198,9 @@
             ctx.putImageData(imageData, 0, 0);
         }
         window.addEventListener('resize', resizeCanvas);
+        let drawingModeEnabled = false;
         function startDrawing(e) {
+            if (!drawingModeEnabled) return;
             drawing = true;
             draw(e);
         }
@@ -1024,6 +1247,13 @@
             document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
         };
         document.getElementById('undoBtn').onclick = undoLastStroke;
+        document.getElementById('drawingModeBtn').onclick = () => {
+            drawingModeEnabled = !drawingModeEnabled;
+            const btn = document.getElementById('drawingModeBtn');
+            btn.classList.toggle('active', drawingModeEnabled);
+            canvas.classList.toggle('draw-active', drawingModeEnabled);
+            btn.textContent = '✏️ ' + (drawingModeEnabled ? labels[currentLang].drawingModeActive : labels[currentLang].drawingMode);
+        };
         document.getElementById('clearCanvas').onclick = () => {
             if (confirm(labels[currentLang].confirmClearCanvas)) {
                 ctx.fillStyle = 'white';
@@ -1034,18 +1264,49 @@
                 autoSave();
             }
         };
-        document.getElementById('exportPdfBtn').onclick = () => {
-            const street = (streetInput.value.trim() || 'Rue').replace(/[^a-z0-9]/gi, '_');
-            const projet = (projectInput.value.trim() || 'Projet').replace(/[^a-z0-9]/gi, '_');
-            const fileName = `PlanifChantier_${street}_${projet}.pdf`;
-            const opt = {
-                margin: 10,
-                filename: fileName,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(document.body).save();
+        document.getElementById('exportPdfBtn').onclick = async () => {
+            const isFr = currentLang === 'fr';
+
+            // 1. Build log section and inject into page (hidden normally, visible in print)
+            let logDiv = document.getElementById('printLogSection');
+            if (logDiv) logDiv.remove();
+
+            logDiv = document.createElement('div');
+            logDiv.id = 'printLogSection';
+
+            if (window.LogModule) {
+                const projName = window.LogModule.getLogProjectName();
+                const logs = await window.LogModule.getLogsForProject(projName);
+                if (logs.length > 0) {
+                    let logHtml = '<h2 style="color:#2e7d32;text-align:center;">Log — ' + projName + '</h2>';
+                    logHtml += '<p style="text-align:center;color:#666;font-size:12px;">' + logs.length + (isFr ? ' entrée(s)' : ' entry(ies)') + '</p>';
+                    logHtml += '<table><tr>';
+                    var headers = [isFr?'Tableau':'Table', isFr?'Ligne':'Line', isFr?'Tâche':'Task', isFr?'Date début':'Start', isFr?'Date fin':'End', isFr?'Équipe':'Team'];
+                    headers.forEach(function(h) { logHtml += '<th>' + h + '</th>'; });
+                    logHtml += '</tr>';
+                    logs.forEach(function(e) {
+                        logHtml += '<tr>';
+                        logHtml += '<td>' + (e.table||'') + '</td>';
+                        logHtml += '<td>' + (e.line||'') + '</td>';
+                        logHtml += '<td>' + (e.task||'') + '</td>';
+                        logHtml += '<td>' + (e.dateStart||e.date||'') + '</td>';
+                        logHtml += '<td>' + (e.dateEnd||'') + '</td>';
+                        logHtml += '<td>' + (e.team||'') + '</td></tr>';
+                    });
+                    logHtml += '</table>';
+                    logDiv.innerHTML = logHtml;
+                }
+            }
+            document.body.appendChild(logDiv);
+
+            // 2. Print (user chooses "Save as PDF")
+            window.print();
+
+            // 3. Clean up after print
+            setTimeout(function() {
+                var el = document.getElementById('printLogSection');
+                if (el) el.remove();
+            }, 1000);
         };
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1064,29 +1325,43 @@
             document.getElementById('streetLabel').textContent = labels[currentLang].street;
             document.getElementById('projectLabel').textContent = labels[currentLang].project;
             document.getElementById('foremanLabel').textContent = labels[currentLang].foreman;
+            document.getElementById('rappelTitle').textContent = labels[currentLang].rappelTitle;
+            document.getElementById('rappelReqLabel').textContent = labels[currentLang].rappelReq;
+            document.getElementById('rappelDoneLabel').textContent = labels[currentLang].rappelDone;
             document.getElementById('specializedTitle').textContent = labels[currentLang].specializedTitle;
             document.getElementById('generalLabel').textContent = labels[currentLang].generalLabel;
             document.getElementById('generalTitle').textContent = labels[currentLang].generalTitle;
+            document.getElementById('autresLabel').textContent = labels[currentLang].autresLabel;
+            document.getElementById('autresTitle').textContent = labels[currentLang].autresTitle;
+            document.getElementById('autresThTask').textContent = labels[currentLang].autresTask;
+            document.getElementById('autresThStart').textContent = labels[currentLang].autresStart;
+            document.getElementById('autresThDone').textContent = labels[currentLang].autresDone;
+            document.getElementById('addAutresBtn').textContent = labels[currentLang].add;
+            document.getElementById('deleteAutresBtn').textContent = labels[currentLang].deleteLast;
             document.getElementById('plombLabel').textContent = labels[currentLang].plombLabel;
             document.getElementById('plombTitle').textContent = labels[currentLang].plombTitle;
             document.getElementById('checklistMainLabel').textContent = labels[currentLang].checklistMainLabel;
             document.getElementById('checklistTitle').textContent = labels[currentLang].checklistTitle;
             document.getElementById('drawingLabel').textContent = labels[currentLang].drawingLabel;
             document.getElementById('drawingTitle').textContent = labels[currentLang].drawingTitle;
+            if (document.getElementById('drawingModeBtn')) {
+                const isActive = document.getElementById('drawingModeBtn').classList.contains('active');
+                document.getElementById('drawingModeBtn').textContent = '✏️ ' + (isActive ? labels[currentLang].drawingModeActive : labels[currentLang].drawingMode);
+            }
             document.getElementById('eraserBtn').textContent = labels[currentLang].eraser;
             document.getElementById('clearCanvas').textContent = labels[currentLang].clear;
             document.getElementById('totalLengthLabel').textContent = labels[currentLang].totalLengthLabel;
             document.getElementById('resetAllBtn').textContent = labels[currentLang].resetAllBtn;
             document.getElementById('exportPdfBtn').textContent = labels[currentLang].exportPdf;
+            document.getElementById('specThSection').textContent = labels[currentLang].section;
+            document.getElementById('specThCleaned').textContent = labels[currentLang].cleaned;
+            document.getElementById('specThPlugged').textContent = labels[currentLang].plugged;
+            document.getElementById('specThDrilled').textContent = labels[currentLang].drilled;
+            document.getElementById('specThLined').textContent = labels[currentLang].lined;
+            document.getElementById('specThPressure').textContent = labels[currentLang].pressure;
             const specThs = document.querySelectorAll('#specializedTable th');
-            specThs[0].textContent = labels[currentLang].section;
             specThs[1].textContent = labels[currentLang].length;
             specThs[2].textContent = labels[currentLang].size;
-            specThs[3].textContent = labels[currentLang].cleaned;
-            specThs[4].textContent = labels[currentLang].plugged;
-            specThs[5].textContent = labels[currentLang].lined;
-            specThs[6].textContent = labels[currentLang].pressure;
-            specThs[7].textContent = labels[currentLang].drilled;
             const genThs = document.querySelectorAll('#generalTable th');
             genThs[0].textContent = labels[currentLang].well;
             genThs[1].textContent = labels[currentLang].asphaltCut;
@@ -1106,11 +1381,31 @@
             document.getElementById('addPlombBtn').textContent = labels[currentLang].add;
             document.getElementById('deletePlombBtn').textContent = labels[currentLang].deleteLast;
             document.getElementById('langSwitch').textContent = labels[currentLang].langBtn;
+            // PDF Plan labels
+            document.getElementById('pdfPlanLabel').textContent = labels[currentLang].pdfPlanLabel;
+            if (document.getElementById('pdfPlanTitle')) document.getElementById('pdfPlanTitle').textContent = labels[currentLang].pdfPlanTitle;
+            if (document.getElementById('pdfRotateBtn')) {
+                const rot = window.pdfPlanRotation || 0;
+                document.getElementById('pdfRotateBtn').textContent = labels[currentLang].pdfRotate + ' ' + rot + '°';
+            }
+            if (document.getElementById('pdfAddPointBtn')) {
+                const isActive = document.getElementById('pdfAddPointBtn').classList.contains('active');
+                document.getElementById('pdfAddPointBtn').textContent = isActive ? labels[currentLang].pdfAddPointActive : labels[currentLang].pdfAddPoint;
+            }
+            if (document.getElementById('pdfDeletePointBtn')) {
+                const isActive = document.getElementById('pdfDeletePointBtn').classList.contains('active');
+                document.getElementById('pdfDeletePointBtn').textContent = isActive ? labels[currentLang].pdfDeletePointActive : labels[currentLang].pdfDeletePoint;
+            }
+            // Log headers
+            if (document.getElementById('logThDateStart')) {
+                document.getElementById('logThDateStart').textContent = currentLang === 'fr' ? 'Date début' : 'Start date';
+                document.getElementById('logThDateEnd').textContent = currentLang === 'fr' ? 'Date fin' : 'End date';
+            }
         }
         function calculateTotalLength() {
             let total = 0;
             specializedBody.querySelectorAll('tr').forEach(row => {
-                const lengthInput = row.querySelectorAll('input[type="text"]')[1];
+                const lengthInput = row.querySelectorAll('input[type="text"]')[2];
                 const value = parseFloat(lengthInput.value) || 0;
                 total += value;
             });
@@ -1118,7 +1413,33 @@
         }
         function addSpecializedRow(data = {}) {
             const row = document.createElement('tr');
-            ['section', 'length', 'size'].forEach(key => {
+
+            // Section: input @ input
+            const cellStart = document.createElement('td');
+            const inputStart = document.createElement('input');
+            inputStart.type = 'text';
+            inputStart.value = data.sectionStart || data.section || '';
+            inputStart.oninput = () => { autoSave(); };
+            inputStart.style.width = '100%';
+            cellStart.appendChild(inputStart);
+            row.appendChild(cellStart);
+
+            const cellAt = document.createElement('td');
+            cellAt.className = 'section-at';
+            cellAt.textContent = '@';
+            row.appendChild(cellAt);
+
+            const cellEnd = document.createElement('td');
+            const inputEnd = document.createElement('input');
+            inputEnd.type = 'text';
+            inputEnd.value = data.sectionEnd || '';
+            inputEnd.oninput = () => { autoSave(); };
+            inputEnd.style.width = '100%';
+            cellEnd.appendChild(inputEnd);
+            row.appendChild(cellEnd);
+
+            // Length + Size
+            ['length', 'size'].forEach(key => {
                 const cell = document.createElement('td');
                 const input = document.createElement('input');
                 input.type = 'text';
@@ -1127,31 +1448,83 @@
                 cell.appendChild(input);
                 row.appendChild(cell);
             });
+
+            // Helper to get section name
+            function getSectionName() {
+                const s = inputStart.value || '—';
+                const e = inputEnd.value || '';
+                return e ? s + '@' + e : s;
+            }
+
+            // Checkboxes: cleaned, plugged, drilled get dual (start+done), lined and pressure stay single
             ['cleaned', 'plugged', 'lined', 'pressure', 'drilled'].forEach(key => {
-                const cell = document.createElement('td');
-                cell.className = 'checkbox-cell';
-                cell.innerHTML = data[key] ? '✅' : '⬜';
-                cell.onclick = () => {
-                    const isChecking = cell.innerHTML === '⬜';
-                    if (isChecking) {
-                        const sectionInput = row.querySelector('input[type="text"]');
-                        const sectionName = sectionInput ? sectionInput.value || '—' : '—';
-                        const taskName = labels[currentLang][key] || key;
-                        showLogPopup('Métiers spécialisés', sectionName, taskName, () => {
-                            cell.innerHTML = '✅';
-                            autoSave();
-                        });
-                    } else {
-                        const sectionInput = row.querySelector('input[type="text"]');
-                        const sectionName = sectionInput ? sectionInput.value || '—' : '—';
-                        const taskName = labels[currentLang][key] || key;
-                        handleUncheck('Métiers spécialisés', sectionName, taskName, () => {
-                            cell.innerHTML = '⬜';
-                            autoSave();
-                        });
-                    }
-                };
-                row.appendChild(cell);
+                const hasDual = ['cleaned', 'plugged', 'drilled'].includes(key);
+
+                if (hasDual) {
+                    // START cell (début)
+                    const cellS = document.createElement('td');
+                    cellS.className = 'checkbox-cell';
+                    cellS.innerHTML = data[key + 'Start'] ? '✅' : '⬜';
+                    cellS.onclick = () => {
+                        const isChecking = cellS.innerHTML === '⬜';
+                        if (isChecking) {
+                            const taskBase = labels[currentLang][key] || key;
+                            showLogPopup('Métiers spécialisés', getSectionName(), taskBase, () => {
+                                cellS.innerHTML = '✅';
+                                autoSave();
+                            }, 'start');
+                        } else {
+                            const taskBase = labels[currentLang][key] || key;
+                            handleUncheck('Métiers spécialisés', getSectionName(), taskBase, () => {
+                                cellS.innerHTML = '⬜';
+                                autoSave();
+                            });
+                        }
+                    };
+                    row.appendChild(cellS);
+
+                    // DONE cell (fait)
+                    const cellD = document.createElement('td');
+                    cellD.className = 'checkbox-cell';
+                    cellD.innerHTML = data[key] ? '✅' : '⬜';
+                    cellD.onclick = () => {
+                        const isChecking = cellD.innerHTML === '⬜';
+                        if (isChecking) {
+                            const taskBase = labels[currentLang][key] || key;
+                            showLogPopup('Métiers spécialisés', getSectionName(), taskBase, () => {
+                                cellD.innerHTML = '✅';
+                                autoSave();
+                            }, 'end');
+                        } else {
+                            const taskBase = labels[currentLang][key] || key;
+                            handleUncheck('Métiers spécialisés', getSectionName(), taskBase, () => {
+                                cellD.innerHTML = '⬜';
+                                autoSave();
+                            });
+                        }
+                    };
+                    row.appendChild(cellD);
+                } else {
+                    // Single checkbox (lined, pressure)
+                    const cell = document.createElement('td');
+                    cell.className = 'checkbox-cell';
+                    cell.innerHTML = data[key] ? '✅' : '⬜';
+                    cell.onclick = () => {
+                        const isChecking = cell.innerHTML === '⬜';
+                        if (isChecking) {
+                            showLogPopup('Métiers spécialisés', getSectionName(), labels[currentLang][key] || key, () => {
+                                cell.innerHTML = '✅';
+                                autoSave();
+                            });
+                        } else {
+                            handleUncheck('Métiers spécialisés', getSectionName(), labels[currentLang][key] || key, () => {
+                                cell.innerHTML = '⬜';
+                                autoSave();
+                            });
+                        }
+                    };
+                    row.appendChild(cell);
+                }
             });
             specializedBody.appendChild(row);
             calculateTotalLength();
@@ -1193,6 +1566,64 @@
                 row.appendChild(cell);
             });
             generalBody.appendChild(row);
+            autoSave();
+        }
+        function addAutresRow(data = {}) {
+            const row = document.createElement('tr');
+            // Tâche input
+            const taskCell = document.createElement('td');
+            const taskInput = document.createElement('input');
+            taskInput.type = 'text';
+            taskInput.value = data.task || '';
+            taskInput.oninput = autoSave;
+            taskCell.appendChild(taskInput);
+            row.appendChild(taskCell);
+
+            function getTaskName() {
+                return taskInput.value || '—';
+            }
+
+            // Début checkbox
+            const startCell = document.createElement('td');
+            startCell.className = 'checkbox-cell';
+            startCell.innerHTML = data.started ? '✅' : '⬜';
+            startCell.onclick = () => {
+                const isChecking = startCell.innerHTML === '⬜';
+                if (isChecking) {
+                    showLogPopup('Autres', getTaskName(), getTaskName(), () => {
+                        startCell.innerHTML = '✅';
+                        autoSave();
+                    }, 'start');
+                } else {
+                    handleUncheck('Autres', getTaskName(), getTaskName(), () => {
+                        startCell.innerHTML = '⬜';
+                        autoSave();
+                    });
+                }
+            };
+            row.appendChild(startCell);
+
+            // Fait checkbox
+            const doneCell = document.createElement('td');
+            doneCell.className = 'checkbox-cell';
+            doneCell.innerHTML = data.done ? '✅' : '⬜';
+            doneCell.onclick = () => {
+                const isChecking = doneCell.innerHTML === '⬜';
+                if (isChecking) {
+                    showLogPopup('Autres', getTaskName(), getTaskName(), () => {
+                        doneCell.innerHTML = '✅';
+                        autoSave();
+                    }, 'end');
+                } else {
+                    handleUncheck('Autres', getTaskName(), getTaskName(), () => {
+                        doneCell.innerHTML = '⬜';
+                        autoSave();
+                    });
+                }
+            };
+            row.appendChild(doneCell);
+
+            autresBody.appendChild(row);
             autoSave();
         }
         function addPlombRow(data = {}) {
@@ -1377,13 +1808,66 @@
             }
             autoSave();
         }
+        function togglePdfPlan() {
+            if (pdfPlanToggle.checked) {
+                pdfPlanSection.classList.remove('hidden');
+            } else {
+                // Check if there's PDF data
+                if (window.PdfPlanModule && window.PdfPlanModule.hasPdfData()) {
+                    const msg = currentLang === 'fr'
+                        ? 'Le plan PDF contient des données (points, PDF). Désactiver effacera tout. Continuer ?'
+                        : 'The PDF plan contains data (points, PDF). Disabling will erase everything. Continue?';
+                    if (!confirm(msg)) {
+                        pdfPlanToggle.checked = true;
+                        return;
+                    }
+                }
+                pdfPlanSection.classList.add('hidden');
+            }
+            autoSave();
+        }
+        function toggleAutres() {
+            if (autresToggle.checked) {
+                autresSection.classList.remove('hidden');
+                if (autresBody.children.length === 0) addAutresRow();
+            } else {
+                if (autresBody.children.length > 0) {
+                    for (let row of autresBody.children) if (isRowModified(row)) {
+                        if (!confirm(labels[currentLang].confirmDisable)) {
+                            autresToggle.checked = true;
+                            return;
+                        }
+                        break;
+                    }
+                }
+                autresSection.classList.add('hidden');
+                autresBody.innerHTML = '';
+            }
+            autoSave();
+        }
+        function deleteLastAutres() {
+            if (autresBody.children.length === 0) return;
+            const last = autresBody.lastElementChild;
+            if (isRowModified(last)) {
+                if (!confirm(labels[currentLang].confirmDelete)) return;
+            }
+            autresBody.removeChild(last);
+            autoSave();
+        }
         async function resetAll() {
             let hasPhotos = false;
             let hasLogs = false;
             if (window.PhotoModule) {
                 const projName = window.PhotoModule.getProjectName();
-                const photos = await window.PhotoModule.getPhotosForProject(projName);
-                hasPhotos = photos.length > 0;
+                const subFolders = ['Factures', 'FicheCuisson', 'TestPression', 'Autres'];
+                for (const sf of subFolders) {
+                    const p = await window.PhotoModule.getPhotosForProject(projName + '__' + sf);
+                    if (p.length > 0) { hasPhotos = true; break; }
+                }
+                if (!hasPhotos) {
+                    const legacy = await window.PhotoModule.getPhotosForProject(projName);
+                    hasPhotos = legacy.length > 0;
+                }
             }
             if (window.LogModule) {
                 const projName = window.LogModule.getLogProjectName();
@@ -1399,6 +1883,10 @@
             // Effacer les photos du projet en cours avant de vider les champs
             if (window.PhotoModule) {
                 const projName = window.PhotoModule.getProjectName();
+                const subFolders = ['Factures', 'FicheCuisson', 'TestPression', 'Autres'];
+                for (const sf of subFolders) {
+                    window.PhotoModule.deleteAllPhotosForProject(projName + '__' + sf);
+                }
                 window.PhotoModule.deleteAllPhotosForProject(projName);
             }
             // Effacer le log du projet en cours
@@ -1411,6 +1899,7 @@
         }
         function hasData() {
             if (streetInput.value.trim() !== '' || projectInput.value.trim() !== '') return true;
+            if (rappelReqInput.value.trim() !== '' || rappelDoneInput.value.trim() !== '') return true;
             if (specializedBody.children.length > 0) {
                 for (let row of specializedBody.children) if (isRowModified(row)) return true;
             }
@@ -1428,14 +1917,18 @@
                 const inputs = row.querySelectorAll('input[type="text"]');
                 const cbs = row.querySelectorAll('.checkbox-cell');
                 specializedRows.push({
-                    section: inputs[0].value,
-                    length: inputs[1].value,
-                    size: inputs[2].value,
-                    cleaned: cbs[0].innerHTML === '✅',
-                    plugged: cbs[1].innerHTML === '✅',
-                    lined: cbs[2].innerHTML === '✅',
-                    pressure: cbs[3].innerHTML === '✅',
-                    drilled: cbs[4].innerHTML === '✅'
+                    sectionStart: inputs[0].value,
+                    sectionEnd: inputs[1].value,
+                    length: inputs[2].value,
+                    size: inputs[3].value,
+                    cleanedStart: cbs[0].innerHTML === '✅',
+                    cleaned: cbs[1].innerHTML === '✅',
+                    pluggedStart: cbs[2].innerHTML === '✅',
+                    plugged: cbs[3].innerHTML === '✅',
+                    lined: cbs[4].innerHTML === '✅',
+                    pressure: cbs[5].innerHTML === '✅',
+                    drilledStart: cbs[6].innerHTML === '✅',
+                    drilled: cbs[7].innerHTML === '✅'
                 });
             });
             const generalRows = [];
@@ -1473,24 +1966,40 @@
                     notes: notesInput.value
                 });
             });
+            const autresRows = [];
+            autresBody.querySelectorAll('tr').forEach(row => {
+                const taskInput = row.querySelector('input[type="text"]');
+                const cbs = row.querySelectorAll('.checkbox-cell');
+                autresRows.push({
+                    task: taskInput.value,
+                    started: cbs[0].innerHTML === '✅',
+                    done: cbs[1].innerHTML === '✅'
+                });
+            });
             const drawing = canvas.toDataURL('image/png');
             const data = {
                 street: streetInput.value,
                 project: projectInput.value,
                 foreman: foremanInput.value,
+                rappelReq: rappelReqInput.value,
+                rappelDone: rappelDoneInput.value,
                 lang: currentLang,
                 darkMode: isDark,
                 generalEnabled: generalToggle.checked,
+                autresEnabled: autresToggle.checked,
                 plombEnabled: plombToggle.checked,
                 checklistMainEnabled: checklistMainToggle.checked,
                 checklistDisplayEnabled: checklistDisplayToggle.checked,
                 drawingEnabled: drawingToggle.checked,
+                pdfPlanEnabled: pdfPlanToggle.checked,
                 drawing: drawing,
                 specializedRows: specializedRows,
                 generalRows: generalRows,
                 plombRows: plombRows,
+                autresRows: autresRows,
                 checklistRows: checklistRows
             };
+            if (window.PdfPlanModule) data.pdfPlanData = window.PdfPlanModule.getExportData();
             localStorage.setItem('planifChantierLiteData', JSON.stringify(data));
         }
         document.getElementById('saveProjectBtn').onclick = async () => {
@@ -1499,14 +2008,18 @@
                 const inputs = row.querySelectorAll('input[type="text"]');
                 const cbs = row.querySelectorAll('.checkbox-cell');
                 specializedRows.push({
-                    section: inputs[0].value,
-                    length: inputs[1].value,
-                    size: inputs[2].value,
-                    cleaned: cbs[0].innerHTML === '✅',
-                    plugged: cbs[1].innerHTML === '✅',
-                    lined: cbs[2].innerHTML === '✅',
-                    pressure: cbs[3].innerHTML === '✅',
-                    drilled: cbs[4].innerHTML === '✅'
+                    sectionStart: inputs[0].value,
+                    sectionEnd: inputs[1].value,
+                    length: inputs[2].value,
+                    size: inputs[3].value,
+                    cleanedStart: cbs[0].innerHTML === '✅',
+                    cleaned: cbs[1].innerHTML === '✅',
+                    pluggedStart: cbs[2].innerHTML === '✅',
+                    plugged: cbs[3].innerHTML === '✅',
+                    lined: cbs[4].innerHTML === '✅',
+                    pressure: cbs[5].innerHTML === '✅',
+                    drilledStart: cbs[6].innerHTML === '✅',
+                    drilled: cbs[7].innerHTML === '✅'
                 });
             });
             const generalRows = [];
@@ -1544,38 +2057,64 @@
                     notes: notesInput.value
                 });
             });
+            const autresRows2 = [];
+            autresBody.querySelectorAll('tr').forEach(row => {
+                const taskInput = row.querySelector('input[type="text"]');
+                const cbs = row.querySelectorAll('.checkbox-cell');
+                autresRows2.push({
+                    task: taskInput.value,
+                    started: cbs[0].innerHTML === '✅',
+                    done: cbs[1].innerHTML === '✅'
+                });
+            });
             const drawing = canvas.toDataURL('image/png');
             const data = {
                 appId: 'planif-chantier',
                 street: streetInput.value,
                 project: projectInput.value,
                 foreman: foremanInput.value,
+                rappelReq: rappelReqInput.value,
+                rappelDone: rappelDoneInput.value,
                 lang: currentLang,
                 darkMode: isDark,
                 generalEnabled: generalToggle.checked,
+                autresEnabled: autresToggle.checked,
                 plombEnabled: plombToggle.checked,
                 checklistMainEnabled: checklistMainToggle.checked,
                 checklistDisplayEnabled: checklistDisplayToggle.checked,
                 drawingEnabled: drawingToggle.checked,
+                pdfPlanEnabled: pdfPlanToggle.checked,
                 drawing: drawing,
                 specializedRows: specializedRows,
                 generalRows: generalRows,
                 plombRows: plombRows,
+                autresRows: autresRows2,
                 checklistRows: checklistRows
             };
 
-            // Inclure les photos dans la sauvegarde
+            // Inclure le plan PDF
+            if (window.PdfPlanModule) data.pdfPlanData = window.PdfPlanModule.getExportData();
+
+            // Inclure les photos dans la sauvegarde (toutes les sous-dossiers)
             if (window.PhotoModule) {
                 const projName = window.PhotoModule.getProjectName();
-                const photos = await window.PhotoModule.getPhotosForProject(projName);
-                data.photos = photos.map(p => ({ fileName: p.fileName, dateAdded: p.dateAdded, dataUrl: p.dataUrl }));
+                const subFolders = ['Factures', 'FicheCuisson', 'TestPression', 'Autres'];
+                const allPhotos = [];
+                for (const sf of subFolders) {
+                    const photos = await window.PhotoModule.getPhotosForProject(projName + '__' + sf);
+                    photos.forEach(p => allPhotos.push({ folder: sf, fileName: p.fileName, dateAdded: p.dateAdded, dataUrl: p.dataUrl }));
+                }
+                // Also get legacy photos (no subfolder)
+                const legacy = await window.PhotoModule.getPhotosForProject(projName);
+                legacy.forEach(p => allPhotos.push({ folder: 'Autres', fileName: p.fileName, dateAdded: p.dateAdded, dataUrl: p.dataUrl }));
+                data.photos = allPhotos;
             }
 
             // Inclure le log dans la sauvegarde
             if (window.LogModule) {
                 const projName = window.LogModule.getLogProjectName();
                 const logs = await window.LogModule.getLogsForProject(projName);
-                data.logs = logs.map(l => ({ table: l.table, line: l.line, task: l.task, date: l.date, team: l.team }));
+                data.logs = logs.map(l => ({ table: l.table, line: l.line, task: l.task, dateStart: l.dateStart || l.date || '', dateEnd: l.dateEnd || '', team: l.team }));
             }
 
             // Générer le nom de fichier automatique (PC_ + rue + projet)
@@ -1620,6 +2159,8 @@
                     streetInput.value = data.street || '';
                     projectInput.value = data.project || '';
                     foremanInput.value = data.foreman || '';
+                    rappelReqInput.value = data.rappelReq || '';
+                    rappelDoneInput.value = data.rappelDone || '';
                     currentLang = data.lang || 'fr';
                     isDark = data.darkMode || false;
                     body.classList.toggle('light', !isDark);
@@ -1630,15 +2171,21 @@
                     checklistMainToggle.checked = data.checklistMainEnabled || false;
                     checklistDisplayToggle.checked = data.checklistDisplayEnabled !== false;
                     drawingToggle.checked = data.drawingEnabled || false;
+                    pdfPlanToggle.checked = data.pdfPlanEnabled || false;
+                    autresToggle.checked = data.autresEnabled || false;
                     generalSection.classList.toggle('hidden', !generalToggle.checked);
+                    autresSection.classList.toggle('hidden', !autresToggle.checked);
                     plombSection.classList.toggle('hidden', !plombToggle.checked);
                     checklistMainSection.classList.toggle('hidden', !checklistMainToggle.checked);
                     checklistDisplaySection.classList.toggle('hidden', !checklistDisplayToggle.checked);
                     drawingSection.classList.toggle('hidden', !drawingToggle.checked);
+                    pdfPlanSection.classList.toggle('hidden', !pdfPlanToggle.checked);
                     specializedBody.innerHTML = '';
                     (data.specializedRows || []).forEach(row => addSpecializedRow(row));
                     generalBody.innerHTML = '';
                     (data.generalRows || []).forEach(row => addGeneralRow(row));
+                    autresBody.innerHTML = '';
+                    (data.autresRows || []).forEach(row => addAutresRow(row));
                     plombBody.innerHTML = '';
                     (data.plombRows || []).forEach(row => addPlombRow(row));
                     addChecklistRows(data.checklistRows || []);
@@ -1663,9 +2210,15 @@
                     // Réimporter les photos sauvegardées dans le JSON
                     if (window.PhotoModule && Array.isArray(data.photos) && data.photos.length > 0) {
                         const projName = window.PhotoModule.getProjectName();
+                        const subFolders = ['Factures', 'FicheCuisson', 'TestPression', 'Autres'];
+                        // Delete all sub-folder photos
+                        for (const sf of subFolders) {
+                            await window.PhotoModule.deleteAllPhotosForProject(projName + '__' + sf);
+                        }
                         await window.PhotoModule.deleteAllPhotosForProject(projName);
                         for (const p of data.photos) {
-                            await window.PhotoModule.savePhotoToDB(projName, p.dataUrl, p.fileName, p.dateAdded);
+                            const folder = p.folder || 'Autres';
+                            await window.PhotoModule.savePhotoToDB(projName + '__' + folder, p.dataUrl, p.fileName, p.dateAdded);
                         }
                     }
 
@@ -1674,7 +2227,17 @@
                         const projName = window.LogModule.getLogProjectName();
                         await window.LogModule.deleteAllLogsForProject(projName);
                         for (const l of data.logs) {
-                            await window.LogModule.addLogEntry(projName, l.table, l.line, l.task, l.date, l.team);
+                            await window.LogModule.importLogEntry(projName, l);
+                        }
+                    }
+
+                    // Réimporter le plan PDF
+                    if (data.pdfPlanData) {
+                        if (window.PdfPlanModule) {
+                            await window.PdfPlanModule.importData(data.pdfPlanData);
+                        } else {
+                            // Module not ready yet, store for later
+                            window._pendingPdfPlanData = data.pdfPlanData;
                         }
                     }
 
@@ -1697,6 +2260,8 @@
                 streetInput.value = data.street || '';
                 projectInput.value = data.project || '';
                 foremanInput.value = data.foreman || '';
+                rappelReqInput.value = data.rappelReq || '';
+                rappelDoneInput.value = data.rappelDone || '';
                 currentLang = data.lang || 'fr';
                 isDark = data.darkMode || false;
                 body.classList.toggle('light', !isDark);
@@ -1707,15 +2272,21 @@
                 checklistMainToggle.checked = data.checklistMainEnabled || false;
                 checklistDisplayToggle.checked = data.checklistDisplayEnabled !== false;
                 drawingToggle.checked = data.drawingEnabled || false;
+                pdfPlanToggle.checked = data.pdfPlanEnabled || false;
+                autresToggle.checked = data.autresEnabled || false;
                 generalSection.classList.toggle('hidden', !generalToggle.checked);
+                autresSection.classList.toggle('hidden', !autresToggle.checked);
                 plombSection.classList.toggle('hidden', !plombToggle.checked);
                 checklistMainSection.classList.toggle('hidden', !checklistMainToggle.checked);
                 checklistDisplaySection.classList.toggle('hidden', !checklistDisplayToggle.checked);
                 drawingSection.classList.toggle('hidden', !drawingToggle.checked);
+                pdfPlanSection.classList.toggle('hidden', !pdfPlanToggle.checked);
                 specializedBody.innerHTML = '';
                 (data.specializedRows || []).forEach(row => addSpecializedRow(row));
                 generalBody.innerHTML = '';
                 (data.generalRows || []).forEach(row => addGeneralRow(row));
+                autresBody.innerHTML = '';
+                (data.autresRows || []).forEach(row => addAutresRow(row));
                 plombBody.innerHTML = '';
                 (data.plombRows || []).forEach(row => addPlombRow(row));
                 addChecklistRows(data.checklistRows || []);
@@ -1736,9 +2307,14 @@
                     historyStep = -1;
                     saveState();
                 }
+                // Restore PDF plan data
+                if (data.pdfPlanData && window.PdfPlanModule) {
+                    window.PdfPlanModule.importData(data.pdfPlanData);
+                }
             }
             if (specializedBody.children.length === 0) addSpecializedRow();
             if (generalToggle.checked && generalBody.children.length === 0) addGeneralRow();
+            if (autresToggle.checked && autresBody.children.length === 0) addAutresRow();
             if (plombToggle.checked && plombBody.children.length === 0) addPlombRow();
             if (checklistMainToggle.checked) addChecklistRows();
             updateLabels();
@@ -1746,11 +2322,17 @@
         }
         streetInput.oninput = autoSave;
         projectInput.oninput = autoSave;
+        rappelReqInput.oninput = autoSave;
+        rappelDoneInput.oninput = autoSave;
         generalToggle.onchange = toggleGeneral;
         plombToggle.onchange = togglePlomb;
         checklistMainToggle.onchange = toggleChecklistMain;
         checklistDisplayToggle.onchange = toggleChecklistDisplay;
         drawingToggle.onchange = toggleDrawing;
+        pdfPlanToggle.onchange = togglePdfPlan;
+        autresToggle.onchange = toggleAutres;
+        document.getElementById('addAutresBtn').onclick = addAutresRow;
+        document.getElementById('deleteAutresBtn').onclick = deleteLastAutres;
         document.getElementById('langSwitch').onclick = () => {
             currentLang = currentLang === 'fr' ? 'en' : 'fr';
             updateLabels();
@@ -1788,11 +2370,44 @@
                 });
             }
 
-            async function addLogEntry(project, table, line, task, date, team) {
+            async function addLogEntry(project, table, line, task, date, team, mode) {
                 const db = await openLogDB();
                 return new Promise((resolve, reject) => {
                     const tx = db.transaction(STORE_NAME, 'readwrite');
-                    tx.objectStore(STORE_NAME).add({ project, table, line, task, date, team });
+                    const entry = { project, table, line, task, dateStart: '', dateEnd: '', team };
+                    if (mode === 'start') {
+                        entry.dateStart = date;
+                    } else if (mode === 'end') {
+                        entry.dateEnd = date;
+                    } else {
+                        // Single checkbox (no dual) — use dateEnd as the date
+                        entry.dateEnd = date;
+                    }
+                    tx.objectStore(STORE_NAME).add(entry);
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
+            async function updateLogEndDate(table, line, task, dateEnd, team) {
+                const projName = getLogProjectName();
+                const db = await openLogDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        // Find entry with same table/line/task that has a dateStart but no dateEnd
+                        const match = req.result.find(l => l.project === projName && l.table === table && l.line === line && l.task === task && !l.dateEnd);
+                        if (match) {
+                            match.dateEnd = dateEnd;
+                            if (team && team !== 'N/A') match.team = team;
+                            store.put(match);
+                        } else {
+                            // No matching start entry found — create a complete entry
+                            store.add({ project: projName, table, line, task, dateStart: '', dateEnd: dateEnd, team: team || 'N/A' });
+                        }
+                    };
                     tx.oncomplete = () => resolve();
                     tx.onerror = () => reject(tx.error);
                 });
@@ -1838,6 +2453,24 @@
                 });
             }
 
+            async function importLogEntry(project, entry) {
+                const db = await openLogDB();
+                return new Promise((resolve, reject) => {
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    tx.objectStore(STORE_NAME).add({
+                        project,
+                        table: entry.table,
+                        line: entry.line,
+                        task: entry.task,
+                        dateStart: entry.dateStart || entry.date || '',
+                        dateEnd: entry.dateEnd || '',
+                        team: entry.team
+                    });
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => reject(tx.error);
+                });
+            }
+
             function getLogProjectName() {
                 if (projectInput.value.trim()) return projectInput.value.trim();
                 if (streetInput.value.trim()) return streetInput.value.trim();
@@ -1873,12 +2506,17 @@
             });
 
             // --- Global functions for checkbox handlers ---
-            window.showLogPopup = async function(table, line, task, onConfirm) {
+            window.showLogPopup = async function(table, line, task, onConfirm, mode) {
                 if (isResetting) { onConfirm(); return; }
                 const result = await showLogPopupUI();
                 if (result) {
                     const projName = getLogProjectName();
-                    await addLogEntry(projName, table, line, task, result.date, result.team);
+                    if (mode === 'end') {
+                        // Update existing entry with dateEnd
+                        await updateLogEndDate(table, line, task, result.date, result.team);
+                    } else {
+                        await addLogEntry(projName, table, line, task, result.date, result.team, mode);
+                    }
                     onConfirm();
                 }
             };
@@ -1926,7 +2564,8 @@
                     tr.innerHTML = '<td>' + (entry.table || '') + '</td>' +
                         '<td>' + (entry.line || '') + '</td>' +
                         '<td>' + (entry.task || '') + '</td>' +
-                        '<td>' + (entry.date || '') + '</td>' +
+                        '<td>' + (entry.dateStart || entry.date || '') + '</td>' +
+                        '<td>' + (entry.dateEnd || '') + '</td>' +
                         '<td>' + (entry.team || '') + '</td>';
                     logBody.appendChild(tr);
                 });
@@ -1938,7 +2577,7 @@
             });
 
             // Expose for save/load/reset
-            window.LogModule = { deleteAllLogsForProject, getLogsForProject, addLogEntry, getLogProjectName };
+            window.LogModule = { deleteAllLogsForProject, getLogsForProject, addLogEntry, importLogEntry, getLogProjectName };
         })();
 
         // ============================================================
@@ -2023,15 +2662,42 @@
             const emptyState = document.getElementById('photoEmptyState');
             const countEl = document.getElementById('photoCount');
             const fileInput = document.getElementById('photoFileInput');
+            const subFolderView = document.getElementById('photoSubFolderView');
+            const gridView = document.getElementById('photoGridView');
             let currentPhotos = [];
             let currentLightboxIdx = 0;
+            let currentSubFolder = '';
+
+            function getSubProjectName() {
+                return getProjectName() + '__' + currentSubFolder;
+            }
 
             // --- Open / Close ---
             document.getElementById('photoFolderBtn').addEventListener('click', async () => {
                 document.getElementById('photoFolderProjectName').textContent = getProjectName();
                 overlay.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
-                await renderPhotos();
+                // Show sub-folder view
+                subFolderView.classList.remove('hidden');
+                gridView.classList.add('hidden');
+                currentSubFolder = '';
+            });
+
+            // Sub-folder click
+            document.querySelectorAll('.photo-subfolder-card').forEach(card => {
+                card.addEventListener('click', async () => {
+                    currentSubFolder = card.dataset.folder;
+                    subFolderView.classList.add('hidden');
+                    gridView.classList.remove('hidden');
+                    await renderPhotos();
+                });
+            });
+
+            // Back button
+            document.getElementById('photoBackBtn').addEventListener('click', () => {
+                subFolderView.classList.remove('hidden');
+                gridView.classList.add('hidden');
+                currentSubFolder = '';
             });
 
             function closeFolder() {
@@ -2046,7 +2712,7 @@
             fileInput.addEventListener('change', async (e) => {
                 const files = e.target.files;
                 if (!files || files.length === 0) return;
-                const projName = getProjectName();
+                const projName = getSubProjectName();
                 for (const file of files) {
                     if (!file.type.startsWith('image/')) continue;
                     const dataUrl = await readFileAsDataUrl(file);
@@ -2086,7 +2752,7 @@
 
             // --- Render grid ---
             async function renderPhotos() {
-                const projName = getProjectName();
+                const projName = getSubProjectName();
                 const photos = await getPhotosForProject(projName);
                 currentPhotos = photos;
                 countEl.textContent = photos.length + ' photo(s)';
@@ -2206,6 +2872,359 @@
                     });
             });
         }
+    </script>
+    <script type="module">
+    // ============================================================
+    // PDF PLAN MODULE — pdf.js + points + overlay linked to specialized table
+    // ============================================================
+    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.min.mjs';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.7.76/pdf.worker.min.mjs';
+
+    const pdfFileInput = document.getElementById('pdfFileInput');
+    const pdfRotateBtn = document.getElementById('pdfRotateBtn');
+    const pdfAddPointBtn = document.getElementById('pdfAddPointBtn');
+    const pdfContainer = document.getElementById('pdfPlanContainer');
+    const pdfCanvas = document.getElementById('pdfCanvas');
+    const pdfOverlay = document.getElementById('pdfOverlay');
+    const pdfCtx = pdfCanvas.getContext('2d');
+    const overlayCtx = pdfOverlay.getContext('2d');
+
+    let pdfDoc = null;
+    let pdfDataBase64 = null;
+    let currentPage = 1;
+    let rotation = 0;
+    window.pdfPlanRotation = 0;
+    let addingPoint = false;
+    let points = {};
+    let currentViewport = null;
+
+    const actionColors = {
+        cleaned: '#FF0000',
+        plugged: '#FF6D00',
+        lined: '#FFFF00',
+        pressure: '#FF00FF',
+        drilled: '#008000'
+    };
+    const actionOrder = ['cleaned', 'plugged', 'lined', 'pressure', 'drilled'];
+
+    // --- Load PDF ---
+    pdfFileInput.addEventListener('change', async () => {
+        const file = pdfFileInput.files[0];
+        if (file) await loadPdfFromFile(file);
+    });
+
+    async function loadPdfFromFile(file) {
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            pdfDataBase64 = arrayBufferToBase64(arrayBuffer);
+            pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            rotation = 0;
+            window.pdfPlanRotation = 0;
+            points = {};
+            pdfContainer.style.display = 'inline-block';
+            await renderPage(currentPage);
+            if (typeof autoSave === 'function') autoSave();
+        } catch (err) {
+            console.error('PDF error:', err);
+            alert('Erreur PDF');
+        }
+    }
+
+    async function loadPdfFromBase64(b64) {
+        try {
+            const binary = atob(b64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            pdfDataBase64 = b64;
+            pdfDoc = await pdfjsLib.getDocument({ data: bytes.buffer }).promise;
+            pdfContainer.style.display = 'inline-block';
+            await renderPage(currentPage);
+        } catch (err) {
+            console.error('PDF load from base64 error:', err);
+        }
+    }
+
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+        return btoa(binary);
+    }
+
+    // --- Render ---
+    async function renderPage(pageNum) {
+        if (!pdfDoc) return;
+        const page = await pdfDoc.getPage(pageNum);
+        const baseVp = page.getViewport({ scale: 1, rotation });
+        const scale = Math.min(2, (pdfContainer.parentElement.clientWidth - 20) / baseVp.width);
+        currentViewport = page.getViewport({ scale, rotation });
+
+        pdfCanvas.width = currentViewport.width;
+        pdfCanvas.height = currentViewport.height;
+        pdfOverlay.width = currentViewport.width;
+        pdfOverlay.height = currentViewport.height;
+
+        pdfCtx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+        overlayCtx.clearRect(0, 0, pdfOverlay.width, pdfOverlay.height);
+
+        await page.render({ canvasContext: pdfCtx, viewport: currentViewport }).promise;
+        redrawOverlay();
+    }
+
+    // --- Rotation ---
+    pdfRotateBtn.addEventListener('click', () => {
+        rotation = (rotation + 90) % 360;
+        window.pdfPlanRotation = rotation;
+        const lang = document.getElementById('langSwitch').textContent === 'EN' ? 'fr' : 'en';
+        pdfRotateBtn.textContent = (lang === 'fr' ? 'Rotation' : 'Rotation') + ' ' + rotation + '°';
+        renderPage(currentPage);
+        if (typeof autoSave === 'function') autoSave();
+    });
+
+    // --- Toggle point add ---
+    const pdfDeletePointBtn = document.getElementById('pdfDeletePointBtn');
+    let deletingPoint = false;
+
+    function getLang() {
+        return document.getElementById('langSwitch').textContent === 'EN' ? 'fr' : 'en';
+    }
+
+    function disableAddMode() {
+        addingPoint = false;
+        pdfAddPointBtn.classList.remove('active');
+        pdfContainer.classList.remove('point-mode');
+        const l = getLang();
+        pdfAddPointBtn.textContent = l === 'fr' ? 'Ajouter des points' : 'Add points';
+    }
+
+    function disableDeleteMode() {
+        deletingPoint = false;
+        pdfDeletePointBtn.classList.remove('active');
+        pdfContainer.classList.remove('delete-mode');
+        const l = getLang();
+        pdfDeletePointBtn.textContent = l === 'fr' ? 'Enlever des points' : 'Remove points';
+    }
+
+    pdfAddPointBtn.addEventListener('click', () => {
+        if (deletingPoint) disableDeleteMode();
+        addingPoint = !addingPoint;
+        pdfAddPointBtn.classList.toggle('active', addingPoint);
+        pdfContainer.classList.toggle('point-mode', addingPoint);
+        const l = getLang();
+        pdfAddPointBtn.textContent = addingPoint
+            ? (l === 'fr' ? 'Mode ajout ACTIVÉ' : 'Add mode ON')
+            : (l === 'fr' ? 'Ajouter des points' : 'Add points');
+    });
+
+    pdfDeletePointBtn.addEventListener('click', () => {
+        if (addingPoint) disableAddMode();
+        deletingPoint = !deletingPoint;
+        pdfDeletePointBtn.classList.toggle('active', deletingPoint);
+        pdfContainer.classList.toggle('delete-mode', deletingPoint);
+        const l = getLang();
+        pdfDeletePointBtn.textContent = deletingPoint
+            ? (l === 'fr' ? 'Mode suppression ACTIVÉ' : 'Remove mode ON')
+            : (l === 'fr' ? 'Enlever des points' : 'Remove points');
+    });
+
+    // --- Point interactions on touch/click ---
+    function getPosition(e) {
+        const rect = pdfCanvas.getBoundingClientRect();
+        const clientX = e.touches?.[0]?.clientX ?? e.clientX;
+        const clientY = e.touches?.[0]?.clientY ?? e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function handleOverlayInteraction(e) {
+        if (!addingPoint && !deletingPoint) return;
+        e.preventDefault();
+        const pos = getPosition(e);
+        if (addingPoint) {
+            addPointAt(pos.x, pos.y);
+        } else if (deletingPoint) {
+            deletePointAt(pos.x, pos.y);
+        }
+    }
+
+    pdfOverlay.addEventListener('touchstart', handleOverlayInteraction);
+    pdfOverlay.addEventListener('click', handleOverlayInteraction);
+
+    function addPointAt(cssX, cssY) {
+        let label = prompt("Nom du point (ex: p1) :")?.trim().toLowerCase();
+        if (!label) return;
+        if (points[label]) { alert('Ce point existe déjà'); return; }
+        const [pdfX, pdfY] = currentViewport.convertToPdfPoint(cssX, cssY);
+        points[label] = { pdfX, pdfY };
+        redrawOverlay();
+        if (typeof autoSave === 'function') autoSave();
+    }
+
+    function deletePointAt(cssX, cssY) {
+        // Find closest point within 30px radius
+        let closest = null;
+        let closestDist = 30;
+        Object.entries(points).forEach(([label, p]) => {
+            const [px, py] = currentViewport.convertToViewportPoint(p.pdfX, p.pdfY);
+            const dist = Math.sqrt((cssX - px) ** 2 + (cssY - py) ** 2);
+            if (dist < closestDist) {
+                closestDist = dist;
+                closest = label;
+            }
+        });
+        if (!closest) return;
+        const l = getLang();
+        const msg = l === 'fr'
+            ? 'Supprimer le point « ' + closest.toUpperCase() + ' » ?'
+            : 'Delete point "' + closest.toUpperCase() + '"?';
+        if (confirm(msg)) {
+            delete points[closest];
+            redrawOverlay();
+            if (typeof autoSave === 'function') autoSave();
+        }
+    }
+
+    // --- Read specialized table data for overlay ---
+    function getSpecializedSegments() {
+        const segments = [];
+        const body = document.getElementById('specializedBody');
+        if (!body) return segments;
+        body.querySelectorAll('tr').forEach(row => {
+            const inputs = row.querySelectorAll('input[type="text"]');
+            const cbs = row.querySelectorAll('.checkbox-cell');
+            const from = (inputs[0]?.value || '').trim().toLowerCase();
+            const to = (inputs[1]?.value || '').trim().toLowerCase();
+            const actions = {};
+            // cbs: [0]=cleanedStart, [1]=cleaned(fait), [2]=pluggedStart, [3]=plugged(fait),
+            //       [4]=lined, [5]=pressure, [6]=drilledStart, [7]=drilled(fait)
+            if (cbs[1]) actions.cleaned = cbs[1].innerHTML === '✅';
+            if (cbs[3]) actions.plugged = cbs[3].innerHTML === '✅';
+            if (cbs[4]) actions.lined = cbs[4].innerHTML === '✅';
+            if (cbs[5]) actions.pressure = cbs[5].innerHTML === '✅';
+            if (cbs[7]) actions.drilled = cbs[7].innerHTML === '✅';
+            segments.push({ from, to, actions });
+        });
+        return segments;
+    }
+
+    // --- Draw overlay ---
+    function redrawOverlay() {
+        if (!currentViewport) return;
+        overlayCtx.clearRect(0, 0, pdfOverlay.width, pdfOverlay.height);
+
+        // Draw lines FIRST (so points appear on top)
+        const segments = getSpecializedSegments();
+        segments.forEach(segment => {
+            if (segment.from && segment.to && points[segment.from] && points[segment.to]) {
+                const [fromX, fromY] = currentViewport.convertToViewportPoint(points[segment.from].pdfX, points[segment.from].pdfY);
+                const [toX, toY] = currentViewport.convertToViewportPoint(points[segment.to].pdfX, points[segment.to].pdfY);
+
+                let currentColor = null;
+                for (let i = actionOrder.length - 1; i >= 0; i--) {
+                    if (segment.actions[actionOrder[i]]) {
+                        currentColor = actionColors[actionOrder[i]];
+                        break;
+                    }
+                }
+
+                if (currentColor) {
+                    overlayCtx.strokeStyle = currentColor;
+                    overlayCtx.lineWidth = 8;
+                    overlayCtx.lineCap = 'round';
+                    overlayCtx.beginPath();
+                    overlayCtx.moveTo(fromX, fromY);
+                    overlayCtx.lineTo(toX, toY);
+                    overlayCtx.stroke();
+                }
+            }
+        });
+
+        // Draw points ON TOP of lines
+        overlayCtx.font = "bold 22px Arial";
+        overlayCtx.textBaseline = "bottom";
+        overlayCtx.textAlign = "center";
+        Object.entries(points).forEach(([label, p]) => {
+            const [cssX, cssY] = currentViewport.convertToViewportPoint(p.pdfX, p.pdfY);
+            // Point circle
+            overlayCtx.fillStyle = "#3498db";
+            overlayCtx.beginPath();
+            overlayCtx.arc(cssX, cssY, 12, 0, Math.PI * 2);
+            overlayCtx.fill();
+            overlayCtx.strokeStyle = "white";
+            overlayCtx.lineWidth = 3;
+            overlayCtx.stroke();
+            // Label ABOVE the point
+            const txt = label.toUpperCase();
+            overlayCtx.strokeStyle = "black";
+            overlayCtx.lineWidth = 3;
+            overlayCtx.strokeText(txt, cssX, cssY - 16);
+            overlayCtx.fillStyle = "white";
+            overlayCtx.fillText(txt, cssX, cssY - 16);
+        });
+        overlayCtx.textAlign = "start";
+    }
+
+    // --- Refresh overlay when checkboxes change ---
+    const observer = new MutationObserver(() => { if (pdfDoc) redrawOverlay(); });
+    const specBody = document.getElementById('specializedBody');
+    if (specBody) observer.observe(specBody, { childList: true, subtree: true, characterData: true });
+
+    // Also refresh on input changes in specialized table
+    document.addEventListener('input', (e) => {
+        if (e.target.closest('#specializedBody') && pdfDoc) redrawOverlay();
+    });
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#specializedBody .checkbox-cell') && pdfDoc) {
+            setTimeout(redrawOverlay, 100);
+        }
+    });
+
+    // --- Export/Import for save/load ---
+    function hasPdfData() {
+        return pdfDoc !== null || Object.keys(points).length > 0;
+    }
+
+    window.PdfPlanModule = {
+        getExportData() {
+            return {
+                pdfBase64: pdfDataBase64 || null,
+                rotation: rotation,
+                points: JSON.parse(JSON.stringify(points))
+            };
+        },
+        async importData(data) {
+            if (!data) return;
+            rotation = data.rotation || 0;
+            window.pdfPlanRotation = rotation;
+            points = data.points || {};
+            if (data.pdfBase64) {
+                await loadPdfFromBase64(data.pdfBase64);
+                if (rotation !== 0) {
+                    await renderPage(currentPage);
+                }
+            }
+            const lang = document.getElementById('langSwitch').textContent === 'EN' ? 'fr' : 'en';
+            pdfRotateBtn.textContent = (lang === 'fr' ? 'Rotation' : 'Rotation') + ' ' + rotation + '°';
+        },
+        redrawOverlay,
+        hasPdfData
+    };
+
+    // Auto-restore from localStorage on module init (since module loads after loadData)
+    try {
+        // Check for pending data from JSON file load first
+        if (window._pendingPdfPlanData) {
+            await window.PdfPlanModule.importData(window._pendingPdfPlanData);
+            delete window._pendingPdfPlanData;
+        } else {
+            const saved = localStorage.getItem('planifChantierLiteData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (data.pdfPlanData && data.pdfPlanData.pdfBase64) {
+                    await window.PdfPlanModule.importData(data.pdfPlanData);
+                }
+            }
+        }
+    } catch (e) { console.error('PDF plan auto-restore:', e); }
     </script>
 </body>
 </html>
