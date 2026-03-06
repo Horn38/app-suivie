@@ -2107,28 +2107,59 @@
             }
             if (defaultName === 'PC_') defaultName = 'PC_PlanifChantier';
 
-            const filename = prompt(currentLang === 'fr' ? 'Nom du fichier (sans extension) :' : 'File name (without extension):', defaultName);
-            if (filename === null) return;
+            const jsonStr = JSON.stringify(data, null, 2);
 
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = (filename.trim() || defaultName) + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
+            if (window.Android) {
+                // Sauvegarde native — écrase le fichier existant
+                const fname = defaultName + '.json';
+                window.Android.saveProject(jsonStr, fname);
+            } else {
+                // Navigateur — téléchargement classique
+                const filename = prompt(currentLang === 'fr' ? 'Nom du fichier (sans extension) :' : 'File name (without extension):', defaultName);
+                if (filename === null) return;
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = (filename.trim() || defaultName) + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
         };
         const loadProjectInput = document.getElementById('loadProjectInput');
         document.getElementById('loadProjectBtn').onclick = () => {
-            loadProjectInput.click();
+            if (window.Android) {
+                // Chargement natif — liste des projets sauvegardés
+                var list = window.Android.listProjects();
+                if (!list) { alert(currentLang === 'fr' ? 'Aucun projet sauvegardé' : 'No saved projects'); return; }
+                var projects = list.split('|||').filter(function(p) { return p.length > 0; });
+                if (projects.length === 0) { alert(currentLang === 'fr' ? 'Aucun projet sauvegardé' : 'No saved projects'); return; }
+                var msg = (currentLang === 'fr' ? 'Choisir un projet :\n\n' : 'Choose a project:\n\n');
+                projects.forEach(function(p, i) { msg += (i + 1) + '. ' + p + '\n'; });
+                msg += '\n' + (currentLang === 'fr' ? 'Entrez le numéro :' : 'Enter the number:');
+                var choice = prompt(msg);
+                if (choice === null) return;
+                var idx = parseInt(choice) - 1;
+                if (isNaN(idx) || idx < 0 || idx >= projects.length) return;
+                var json = window.Android.loadProject(projects[idx]);
+                if (json) loadProjectFromJSON(json);
+            } else {
+                loadProjectInput.click();
+            }
         };
         loadProjectInput.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = async (ev) => {
+                loadProjectFromJSON(ev.target.result);
+            };
+            reader.readAsText(file);
+            loadProjectInput.value = '';
+        };
+        async function loadProjectFromJSON(jsonString) {
                 try {
-                    const data = JSON.parse(ev.target.result);
+                    const data = JSON.parse(jsonString);
 
                     // Vérifier que c'est un fichier Planif'Chantier
                     if (data.appId && data.appId !== 'planif-chantier') {
@@ -2234,10 +2265,7 @@
                     alert('Erreur lors du chargement du fichier : format invalide ou corrompu.');
                     console.error(err);
                 }
-            };
-            reader.readAsText(file);
-            loadProjectInput.value = '';
-        };
+        }
         function loadData() {
             const saved = localStorage.getItem('planifChantierLiteData');
             if (saved) {
