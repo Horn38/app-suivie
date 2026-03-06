@@ -70,6 +70,7 @@
             font-size: 16px;
         }
         body.dark input[type="text"], body.dark input[type="date"] { color: #e0e0e0; }
+        body.dark textarea { background: #2a2a2e; color: #e0e0e0; border-color: #555; }
         #generalBody input[type="text"], #plombBody input[type="text"], #checklistBody input[type="text"] {
             text-align: left;
             padding: 10px;
@@ -307,6 +308,8 @@
         }
         .log-popup-ok { background: #4CAF50; color: white; }
         .log-popup-ok:hover { background: #45a049; }
+        .log-popup-ok:disabled { background: #4CAF50; opacity: 0.4; cursor: not-allowed; }
+        .log-popup-ok:disabled:hover { background: #4CAF50; }
         .log-popup-cancel { background: #45475a; color: #cdd6f4; }
         body.light .log-popup-cancel { background: #e0e0e0; color: #333; }
         .log-popup-cancel:hover { background: #585b70; }
@@ -606,12 +609,12 @@
             /* Show active sections, hide disabled ones */
             #generalSection, #autresSection, #plombSection,
             #checklistMainSection, #checklistDisplaySection,
-            #drawingSection, #pdfPlanSection { display: block !important; }
+            #drawingSection, #pdfPlanSection, #notesSection { display: block !important; }
             #generalSection.hidden, #autresSection.hidden, #plombSection.hidden,
             #checklistMainSection.hidden, #checklistDisplaySection.hidden,
-            #drawingSection.hidden, #pdfPlanSection.hidden { display: none !important; }
+            #drawingSection.hidden, #pdfPlanSection.hidden, #notesSection.hidden { display: none !important; }
             /* Make inputs look like plain text */
-            input[type="text"], input[type="date"] {
+            input[type="text"], input[type="date"], textarea {
                 border: none !important; background: transparent !important;
                 color: #222 !important; font-size: 12px !important;
                 padding: 2px !important; box-shadow: none !important; outline: none !important;
@@ -697,6 +700,13 @@
             <span id="pdfPlanLabel">Plan PDF</span>
             <label class="switch">
                 <input type="checkbox" id="pdfPlanToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="slider-group">
+            <span id="notesLabel">Notes</span>
+            <label class="switch">
+                <input type="checkbox" id="notesToggle">
                 <span class="slider"></span>
             </label>
         </div>
@@ -845,6 +855,10 @@
                 <canvas id="pdfOverlay"></canvas>
             </div>
         </div>
+    </div>
+    <div id="notesSection" class="hidden">
+        <h2 id="notesTitle">Notes</h2>
+        <textarea id="notesArea" style="width:100%;min-height:200px;padding:10px;font-size:14px;font-family:Arial,sans-serif;border:2px solid #ccc;border-radius:8px;resize:vertical;box-sizing:border-box;"></textarea>
     </div>
     <div id="drawingSection" class="hidden">
         <h2 id="drawingTitle">Croquis / Notes à main levée</h2>
@@ -1004,6 +1018,7 @@
                 drawingMode: "Activer le dessin",
                 drawingModeActive: "Mode dessin ACTIVÉ",
                 pdfPlanLabel: "Plan PDF",
+                notesLabel: "Notes",
                 pdfPlanTitle: "Plan PDF",
                 pdfLoad: "Charger PDF",
                 pdfRotate: "Rotation",
@@ -1068,6 +1083,7 @@
                 drawingMode: "Enable drawing",
                 drawingModeActive: "Drawing mode ON",
                 pdfPlanLabel: "PDF Plan",
+                notesLabel: "Notes",
                 pdfPlanTitle: "PDF Plan",
                 pdfLoad: "Load PDF",
                 pdfRotate: "Rotation",
@@ -1128,6 +1144,9 @@
         const drawingToggle = document.getElementById('drawingToggle');
         const pdfPlanSection = document.getElementById('pdfPlanSection');
         const pdfPlanToggle = document.getElementById('pdfPlanToggle');
+        const notesSection = document.getElementById('notesSection');
+        const notesToggle = document.getElementById('notesToggle');
+        const notesArea = document.getElementById('notesArea');
         const autresSection = document.getElementById('autresSection');
         const autresToggle = document.getElementById('autresToggle');
         const autresBody = document.getElementById('autresBody');
@@ -1383,6 +1402,8 @@
             document.getElementById('langSwitch').textContent = labels[currentLang].langBtn;
             // PDF Plan labels
             document.getElementById('pdfPlanLabel').textContent = labels[currentLang].pdfPlanLabel;
+            document.getElementById('notesLabel').textContent = labels[currentLang].notesLabel || 'Notes';
+            document.getElementById('notesTitle').textContent = labels[currentLang].notesLabel || 'Notes';
             if (document.getElementById('pdfPlanTitle')) document.getElementById('pdfPlanTitle').textContent = labels[currentLang].pdfPlanTitle;
             if (document.getElementById('pdfRotateBtn')) {
                 const rot = window.pdfPlanRotation || 0;
@@ -1739,14 +1760,7 @@
                 generalSection.classList.remove('hidden');
                 if (generalBody.children.length === 0) addGeneralRow();
             } else {
-                if (hasGeneralData()) {
-                    if (!confirm(labels[currentLang].confirmDisable)) {
-                        generalToggle.checked = true;
-                        return;
-                    }
-                }
                 generalSection.classList.add('hidden');
-                generalBody.innerHTML = '';
             }
             autoSave();
         }
@@ -1755,14 +1769,7 @@
                 plombSection.classList.remove('hidden');
                 if (plombBody.children.length === 0) addPlombRow();
             } else {
-                if (hasPlombData()) {
-                    if (!confirm(labels[currentLang].confirmDisable)) {
-                        plombToggle.checked = true;
-                        return;
-                    }
-                }
                 plombSection.classList.add('hidden');
-                plombBody.innerHTML = '';
             }
             autoSave();
         }
@@ -1771,14 +1778,7 @@
                 checklistMainSection.classList.remove('hidden');
                 if (checklistBody.children.length === 0) addChecklistRows();
             } else {
-                if (hasChecklistData()) {
-                    if (!confirm(labels[currentLang].confirmDisable)) {
-                        checklistMainToggle.checked = true;
-                        return;
-                    }
-                }
                 checklistMainSection.classList.add('hidden');
-                checklistBody.innerHTML = '';
             }
             autoSave();
         }
@@ -1793,18 +1793,7 @@
             if (drawingToggle.checked) {
                 drawingSection.classList.remove('hidden');
             } else {
-                if (hasDrawing()) {
-                    if (!confirm(labels[currentLang].confirmDisableDrawing)) {
-                        drawingToggle.checked = true;
-                        return;
-                    }
-                }
                 drawingSection.classList.add('hidden');
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                history = [];
-                historyStep = -1;
-                saveState();
             }
             autoSave();
         }
@@ -1812,36 +1801,25 @@
             if (pdfPlanToggle.checked) {
                 pdfPlanSection.classList.remove('hidden');
             } else {
-                // Check if there's PDF data
-                if (window.PdfPlanModule && window.PdfPlanModule.hasPdfData()) {
-                    const msg = currentLang === 'fr'
-                        ? 'Le plan PDF contient des données (points, PDF). Désactiver effacera tout. Continuer ?'
-                        : 'The PDF plan contains data (points, PDF). Disabling will erase everything. Continue?';
-                    if (!confirm(msg)) {
-                        pdfPlanToggle.checked = true;
-                        return;
-                    }
-                }
                 pdfPlanSection.classList.add('hidden');
             }
             autoSave();
         }
+        function toggleNotes() {
+            if (notesToggle.checked) {
+                notesSection.classList.remove('hidden');
+            } else {
+                notesSection.classList.add('hidden');
+            }
+            autoSave();
+        }
+        notesArea.addEventListener('input', autoSave);
         function toggleAutres() {
             if (autresToggle.checked) {
                 autresSection.classList.remove('hidden');
                 if (autresBody.children.length === 0) addAutresRow();
             } else {
-                if (autresBody.children.length > 0) {
-                    for (let row of autresBody.children) if (isRowModified(row)) {
-                        if (!confirm(labels[currentLang].confirmDisable)) {
-                            autresToggle.checked = true;
-                            return;
-                        }
-                        break;
-                    }
-                }
                 autresSection.classList.add('hidden');
-                autresBody.innerHTML = '';
             }
             autoSave();
         }
@@ -1992,6 +1970,8 @@
                 checklistDisplayEnabled: checklistDisplayToggle.checked,
                 drawingEnabled: drawingToggle.checked,
                 pdfPlanEnabled: pdfPlanToggle.checked,
+                notesEnabled: notesToggle.checked,
+                notesText: notesArea.value,
                 drawing: drawing,
                 specializedRows: specializedRows,
                 generalRows: generalRows,
@@ -2084,6 +2064,8 @@
                 checklistDisplayEnabled: checklistDisplayToggle.checked,
                 drawingEnabled: drawingToggle.checked,
                 pdfPlanEnabled: pdfPlanToggle.checked,
+                notesEnabled: notesToggle.checked,
+                notesText: notesArea.value,
                 drawing: drawing,
                 specializedRows: specializedRows,
                 generalRows: generalRows,
@@ -2172,6 +2154,8 @@
                     checklistDisplayToggle.checked = data.checklistDisplayEnabled !== false;
                     drawingToggle.checked = data.drawingEnabled || false;
                     pdfPlanToggle.checked = data.pdfPlanEnabled || false;
+                    notesToggle.checked = data.notesEnabled || false;
+                    notesArea.value = data.notesText || '';
                     autresToggle.checked = data.autresEnabled || false;
                     generalSection.classList.toggle('hidden', !generalToggle.checked);
                     autresSection.classList.toggle('hidden', !autresToggle.checked);
@@ -2180,6 +2164,7 @@
                     checklistDisplaySection.classList.toggle('hidden', !checklistDisplayToggle.checked);
                     drawingSection.classList.toggle('hidden', !drawingToggle.checked);
                     pdfPlanSection.classList.toggle('hidden', !pdfPlanToggle.checked);
+                    notesSection.classList.toggle('hidden', !notesToggle.checked);
                     specializedBody.innerHTML = '';
                     (data.specializedRows || []).forEach(row => addSpecializedRow(row));
                     generalBody.innerHTML = '';
@@ -2273,6 +2258,8 @@
                 checklistDisplayToggle.checked = data.checklistDisplayEnabled !== false;
                 drawingToggle.checked = data.drawingEnabled || false;
                 pdfPlanToggle.checked = data.pdfPlanEnabled || false;
+                notesToggle.checked = data.notesEnabled || false;
+                notesArea.value = data.notesText || '';
                 autresToggle.checked = data.autresEnabled || false;
                 generalSection.classList.toggle('hidden', !generalToggle.checked);
                 autresSection.classList.toggle('hidden', !autresToggle.checked);
@@ -2281,6 +2268,7 @@
                 checklistDisplaySection.classList.toggle('hidden', !checklistDisplayToggle.checked);
                 drawingSection.classList.toggle('hidden', !drawingToggle.checked);
                 pdfPlanSection.classList.toggle('hidden', !pdfPlanToggle.checked);
+                notesSection.classList.toggle('hidden', !notesToggle.checked);
                 specializedBody.innerHTML = '';
                 (data.specializedRows || []).forEach(row => addSpecializedRow(row));
                 generalBody.innerHTML = '';
@@ -2330,6 +2318,7 @@
         checklistDisplayToggle.onchange = toggleChecklistDisplay;
         drawingToggle.onchange = toggleDrawing;
         pdfPlanToggle.onchange = togglePdfPlan;
+        notesToggle.onchange = toggleNotes;
         autresToggle.onchange = toggleAutres;
         document.getElementById('addAutresBtn').onclick = addAutresRow;
         document.getElementById('deleteAutresBtn').onclick = deleteLastAutres;
@@ -2487,11 +2476,17 @@
                 return new Promise((resolve) => {
                     const today = new Date().toISOString().split('T')[0];
                     popupDate.value = today;
-                    popupTeam.value = 'N/A';
+                    popupTeam.value = '';
+                    var okBtn = document.getElementById('logPopupOk');
+                    okBtn.disabled = true;
                     popupOverlay.classList.remove('hidden');
                     popupResolve = resolve;
                 });
             }
+
+            popupTeam.addEventListener('input', function() {
+                document.getElementById('logPopupOk').disabled = !popupTeam.value.trim();
+            });
 
             document.getElementById('logPopupOk').addEventListener('click', () => {
                 popupOverlay.classList.add('hidden');
