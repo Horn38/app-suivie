@@ -1,7 +1,7 @@
 // sw.js - Service Worker pour Planif'Chantier Lite
 // Version simple mais robuste : cache les fichiers essentiels + fallback offline
 
-const CACHE_NAME = 'planif-chantier-lite-v8';  // Change ce numéro quand tu modifies (v6, v7...)
+const CACHE_NAME = 'planif-chantier-lite-v9';  // Change ce numéro quand tu modifies (v6, v7...)
 
 const OFFLINE_URL = '/app-suivie/offline.html';  // Optionnel : crée un offline.html plus tard si tu veux
 
