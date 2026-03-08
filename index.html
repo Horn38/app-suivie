@@ -940,6 +940,11 @@ body.light .project-item-name { color: #333; }
             </div>
             <button class="photo-folder-close" id="projectsOverlayCloseBtn" title="Fermer">✕</button>
         </div>
+        <div class="photo-folder-toolbar">
+            <button class="photo-import-btn" id="projectImportBtn">
+                <span>📥</span> Importer un projet
+            </button>
+        </div>
         <div style="flex:1; overflow-y:auto; padding:16px;">
             <div id="projectsList"></div>
             <div id="projectsEmpty" class="photo-empty-state hidden">
@@ -2195,6 +2200,7 @@ document.getElementById('loadProjectBtn').onclick = () => {
         const projectsList = document.getElementById('projectsList');
         const projectsEmpty = document.getElementById('projectsEmpty');
         projectsList.innerHTML = '';
+        projectsEmpty.classList.add('hidden');
 
         if (!list || list.trim() === '') {
             projectsEmpty.classList.remove('hidden');
@@ -2277,6 +2283,25 @@ document.getElementById('projectsOverlayCloseBtn').addEventListener('click', clo
 document.getElementById('projectsOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('projectsOverlay')) closeProjectsOverlay();
 });
+
+document.getElementById('projectImportBtn').addEventListener('click', () => {
+    if (window.Android) {
+        closeProjectsOverlay();
+        window.Android.pickFile();
+    } else {
+        closeProjectsOverlay();
+        document.getElementById('loadProjectInput').click();
+    }
+});
+
+// Callback appelé par Kotlin après sélection d'un fichier
+window.onAndroidFilePicked = async (jsonStr, fileName) => {
+    try {
+        loadProjectFromJSON(jsonStr);
+    } catch (err) {
+        alert('Fichier invalide.');
+    }
+};
         loadProjectInput.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
