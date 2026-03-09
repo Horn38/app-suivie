@@ -1930,14 +1930,15 @@ body.light .project-item-name { color: #333; }
                 const projName = window.PhotoModule.getProjectName();
                 const subFolders = ['Factures', 'FicheCuisson', 'TestPression', 'Autres'];
                 for (const sf of subFolders) {
-                    window.PhotoModule.deleteAllPhotosForProject(projName + '__' + sf);
+                    await window.PhotoModule.deleteAllPhotosForProject(projName + '__' + sf);
                 }
-                window.PhotoModule.deleteAllPhotosForProject(projName);
+                await window.PhotoModule.deleteAllPhotosForProject(projName);
+                if (typeof renderPhotos === 'function') await renderPhotos();
             }
             // Effacer le log du projet en cours
             if (window.LogModule) {
                 const projName = window.LogModule.getLogProjectName();
-                window.LogModule.deleteAllLogsForProject(projName);
+                await window.LogModule.deleteAllLogsForProject(projName);
             }
             localStorage.removeItem('planifChantierLiteData');
             location.reload();
@@ -2225,11 +2226,13 @@ document.getElementById('loadProjectBtn').onclick = () => {
                     const btnLoad = document.createElement('button');
                     btnLoad.className = 'btn-load';
                     btnLoad.textContent = '📂 Charger';
-                    btnLoad.onclick = () => {
+                    btnLoad.onclick = async () => {
                         const json = window.Android.loadProject(fname);
                         if (json) {
                             closeProjectsOverlay();
-                            loadProjectFromJSON(json);
+                            await loadProjectFromJSON(json);
+                            await new Promise(r => setTimeout(r, 100));
+                            if (typeof renderPhotos === 'function') await renderPhotos();
                         }
                     };
 
@@ -2886,7 +2889,21 @@ window.onAndroidFilePicked = async (jsonStr, fileName) => {
             overlay.addEventListener('click', (e) => { if (e.target === overlay) closeFolder(); });
 
             // --- Import ---
-            document.getElementById('photoImportBtn').addEventListener('click', () => fileInput.click());
+            document.getElementById('photoImportBtn').addEventListener('click', () => {
+                if (window.Android) {
+                    window.Android.pickPhoto();
+                } else {
+                    fileInput.click();
+                }
+            });
+
+            // Callback Android pour photos (dossier photos Planif)
+            window.onAndroidPhotoPicked = async (dataUrl, fileName) => {
+                const projName = getSubProjectName();
+                await savePhotoToDB(projName, dataUrl, fileName, new Date().toISOString());
+                await renderPhotos();
+            };
+
             fileInput.addEventListener('change', async (e) => {
                 const files = e.target.files;
                 if (!files || files.length === 0) return;
