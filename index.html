@@ -1941,6 +1941,8 @@ body.light .project-item-name { color: #333; }
                 await window.LogModule.deleteAllLogsForProject(projName);
             }
             localStorage.removeItem('planifChantierLiteData');
+            // Attendre que tous les deletes IndexedDB soient terminés avant reload
+            await new Promise(r => setTimeout(r, 300));
             location.reload();
         }
         function hasData() {
@@ -2297,10 +2299,11 @@ document.getElementById('projectImportBtn').addEventListener('click', () => {
     }
 });
 
-// Callback appelé par Kotlin après sélection d'un fichier
+// Callback appelé par Kotlin après sélection d'un fichier (import email/externe)
 window.onAndroidFilePicked = async (jsonStr, fileName) => {
     try {
-        loadProjectFromJSON(jsonStr);
+        await loadProjectFromJSON(jsonStr);
+        // photos maintenant dans IndexedDB — s'afficheront à l'ouverture du dossier
     } catch (err) {
         alert('Fichier invalide.');
     }
